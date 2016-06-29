@@ -26,6 +26,26 @@ describe RichText do
     refute_equal initial_node_count, node_count
   end
   
+  
+  describe '#each_node' do
+    it 'returns an enumerator' do
+      rt    = subject.new 'test'
+      assert_kind_of Enumerator, rt.each_node
+    end
+      
+    it 'iterates over the nodes' do
+      rt    = subject.new 'test'
+      count = 0
+      
+      rt.each_node do |node|
+        count += 1
+      end
+      
+      assert_equal 1, count
+    end
+  end
+  
+  
   describe '#RichText' do
     it 'also create a RichText object' do
       assert_kind_of subject, RichText('test')

@@ -59,6 +59,12 @@ class RichText
   end
   
   
+  
+  def each_node &block
+    base.each_child(&block)
+  end
+  
+  
   # From
   #
   # Convenience method for instansiating one RichText object from another. The 

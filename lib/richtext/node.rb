@@ -17,6 +17,20 @@ class RichText
       @children += children
     end
     
+    
+    def each_child &block
+      return to_enum(__callee__) unless block_given?
+      
+      @children.each do |child|
+        if Node === child
+          child.each_child(&block)
+        else
+          yield child
+        end
+      end
+    end
+    
+    
     def to_s
       @children.reduce('') {|str, child| str + child.to_s }
     end

@@ -204,10 +204,10 @@ class RichText
     
     
     def inspect
-      children = @children.map{|c| 
-          c.inspect.gsub(/(^)/) { $1 + '  ' }}.join("\n")
+      children = @children.reduce(''){|s, c| 
+          s + "\n" + c.inspect.gsub(/(^)/) { $1 + '  ' }}
           
-      "#<%{name} %<a>p:%<id>#x>\n%{children}" % {
+      "#<%{name} %<a>p:%<id>#x>%{children}" % {
           name: self.class.name, id: self.object_id, a: @attributes, children: children}
     end
   end

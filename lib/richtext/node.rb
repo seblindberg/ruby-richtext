@@ -1,12 +1,36 @@
+# Node
+#
+# A Node can have  children, which themselvs can have children. A tree like 
+# structure can thus be formed by composing multiple Nodes. An example of such a 
+# tree structure can be seen below.
+#
+# The Node class implements some convenience methods for iterating, left to 
+# right, over either all
+#  - nodes in the tree
+#  - leafs in the tree
+#  - direct decendant of a node
+#
+# In addition to having children a Node can also have attributes, represented by # simple key => value pairs.
+#
+#                Example Tree
+#                                        +--------------------------+
+#                     A <- Root Node     | Left to right order: ABC |
+#                    / \                 +--------------------------+
+#      Leaf Node -> B   C <- Child to A
+#    (no children)     /|\
+#                      ...
+# 
+
 class RichText
   class Node
     include Enumerable
     
     attr_reader :attributes
     
-    def initialize text = nil, **attributes
-      @children   = text ? [text.to_s] : ['']
+    def initialize **attributes
+      @children   = []
       @attributes = attributes
+      #@attributes[:text] = text if text
     end
     
     
@@ -21,7 +45,7 @@ class RichText
     # Is this node a leaf node?
     
     def leaf?
-      String === @children[0]
+      @children.empty?
     end
     
     
@@ -40,15 +64,15 @@ class RichText
     #
     # A child is either another node or any object that respond to #to_s.
     
-    def add *children
+    def add *new_children
       if leaf?
         # Remove the text entry from the node and put it in a new leaf node 
         # among the children
-        text = @children.pop
-        @children << self.class.new(text) unless text.empty?
+        #text = @attributes[:text]
+        #@children << self.class.new(text: text) if text && !text.empty?
       end
       
-      children.each do |c|
+      new_children.each do |c|
         @children << ((Node === c) ? c : self.class.new(c))
       end
 
@@ -66,9 +90,7 @@ class RichText
       return to_enum(__callee__) unless block_given?
       
       yield self
-      
-      return if leaf?
-      
+            
       @children.each do |child|
         yield child
         child.each(&block) unless child.leaf?
@@ -102,28 +124,34 @@ class RichText
     
     def each_child &block
       return to_enum(__callee__) unless block_given?
-      return if leaf?
-      
       @children.each(&block)
     end
-    
+
     
     # To String
     #
     # Combine the text from all the leaf nodes in the tree, from left to right. 
     
-    def to_s
-      each_leaf.reduce('') {|str, child| str + child.children[0] }
-    end
+    # def to_s &block
+    #   string = leaf? ? 
+    #     @attributes[:text] : 
+    #     @children.reduce('') {|str, child| str + child.to_s(&block) }
+    #     
+    #   block_given? ? yield(self, string) : string
+    # end
     
     
     # Attribute accessor
     #
-    # Read an attribute of the node. Attributes are simply key-value pairs 
-    # stored internally in a hash.
+    # Read and write an attribute of the node. Attributes are simply key-value 
+    # pairs stored internally in a hash.
     
     def [] attribute
       @attributes[attribute]
+    end
+    
+    def []= attribute, value
+      @attributes[attribute] = value
     end
     
     
@@ -132,7 +160,8 @@ class RichText
     # Returns the child count of this node.
     
     def count
-      leaf? ? 0 : @children.size
+      #leaf? ? 0 : @children.size
+      @children.size
     end
     
     
@@ -141,11 +170,12 @@ class RichText
     # Returns the size of the tree where this node is the root.
     
     def size
-      leaf? ? 1 : @children.reduce(1) {|total, child| total + child.size }
+      #leaf? ? 1 : @children.reduce(1) {|total, child| total + child.size }
+      @children.reduce(1) {|total, child| total + child.size }
     end
     
     
-    # Minimal
+    # Minimal?
     #
     # Test if the tree under this node is minimal or not. A non minimal tree 
     # contains children which themselvs only have one child.
@@ -181,15 +211,11 @@ class RichText
     
     
     def inspect
-      base = '#<Node %<a>p:%<id>#x' % {id: self.object_id, a: @attributes}
-      
-      if leaf?
-        %Q{#{base} "#{@children[0]}">}
-      else
-        children = @children.map{|c| 
-            c.inspect.gsub(/(^)/) { $1 + '  ' }}.join("\n")
-        "#{base}>\n#{children}"
-      end
+      children = @children.map{|c| 
+          c.inspect.gsub(/(^)/) { $1 + '  ' }}.join("\n")
+          
+      "#<%{name} %<a>p:%<id>#x>\n%{children}" % {
+          name: self.name, id: self.object_id, a: @attributes, children: children}
     end
   end
 end

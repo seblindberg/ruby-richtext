@@ -11,13 +11,13 @@ describe RichText::Node do
   #           'a' 'b'
   
   let(:minimal_tree) {
-    child = subject.new
-    child << 'a'
-    child << 'b'
+    child = subject.new name: '0'
+    child << {name: 'a'}
+    child << {name: 'b'}
     
-    base = subject.new
+    base = subject.new name: '0'
     base << child
-    base << 'c'
+    base << {name: 'c'}
     
     [base, 5]
   }
@@ -30,10 +30,10 @@ describe RichText::Node do
   #                   'a'
   
   let(:non_minimal_tree) {
-    child = subject.new
-    child << 'a'
+    child = subject.new name: '1'
+    child << {name: 'a'}
     
-    base = subject.new
+    base = subject.new name: '0'
     base << child
     
     [base, 3]
@@ -45,44 +45,31 @@ describe RichText::Node do
       assert_equal 0, node.count
       assert node.leaf?
       
-      node << 'String'
+      node << subject.new
       assert_equal 1, node.count
       refute node.leaf?
     end
     
     it 'converts a leaf node to a regular node' do
-      leaf = subject.new 'leaf'
+      leaf = subject.new
       assert leaf.leaf?
       
-      leaf << subject.new('other_leaf')
+      leaf << subject.new
       refute leaf.leaf?
-      assert_equal 2, leaf.count
+      
+      assert_equal 1, leaf.count
+      assert_equal 2, leaf.size
     end
   end
   
-  describe '#to_s' do
-    it 'flattens the tree' do
-      lvl_1 = subject.new
-      lvl_1 << 'Hello'
-      
-      lvl_0 = subject.new
-      lvl_0 << lvl_1
-      lvl_0 << ' '
-      lvl_0 << 'world'
-      
-      assert_equal 'Hello',       lvl_1.to_s
-      assert_equal 'Hello world', lvl_0.to_s
-    end
-  end
-  
-  
+    
   describe '#count' do
     it 'returns zero for empty nodes' do
       assert_equal 0, node.count
     end
     
     it 'returns zero for leafs' do
-      leaf = subject.new 'leaf'
+      leaf = subject.new
       
       assert leaf.leaf?
       assert_equal 0, leaf.count
@@ -103,7 +90,7 @@ describe RichText::Node do
     end
     
     it 'returns 1 for leaf nodes' do
-      leaf = subject.new 'leaf'
+      leaf = subject.new
       
       assert leaf.leaf?
       assert_equal 1, leaf.size
@@ -127,14 +114,15 @@ describe RichText::Node do
       children = ['a', 'b', 'c']
       count    = 0
       
-      node.add(*children)
+      node.add(*children.map{|n| {name: n} })
       
       child_enum = children.each
       
       # Make sure all of the children match
       node.each_leaf do |child|
         count += 1
-        assert_equal child_enum.next, child.to_s
+        assert       child.leaf?
+        assert_equal child_enum.next, child[:name]
       end
       
       assert_equal children.count, count
@@ -149,7 +137,7 @@ describe RichText::Node do
     
     it 'iterates recursivly' do
       children   = ['a', 'b', 'c']
-      child_enum = children.each
+      child_enum = children.map{|n| {name: n} }.each
       count      = 0
       
       lvl_1 = subject.new
@@ -160,11 +148,11 @@ describe RichText::Node do
       lvl_0 << child_enum.next
       lvl_0 << child_enum.next
       
-      child_enum.rewind
+      child_enum = children.each
       
       lvl_0.each_leaf do |child|
         count += 1
-        assert_equal child_enum.next, child.to_s
+        assert_equal child_enum.next, child[:name]
       end
       
       assert_equal children.count, count
@@ -174,7 +162,7 @@ describe RichText::Node do
   
   describe '#minimal?' do
     it 'returns true for leaf nodes' do
-      leaf = subject.new 'leaf'
+      leaf = subject.new
       assert leaf.minimal?
     end
     

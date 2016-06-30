@@ -1,5 +1,6 @@
 require 'richtext/version'
 require 'richtext/node'
+require 'richtext/text_node'
 require 'richtext/format'
 
 class RichText

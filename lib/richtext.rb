@@ -15,13 +15,18 @@ class RichText
   # details.
   
   def initialize arg = ''
-    @base, @raw = case arg
-    when self.class
-      arg.raw ?          [nil,  arg.raw] :
-                         [arg.base, nil]
-    when RichText   then [arg.base, nil]
-    when TextNode   then [arg,      nil]
-    else                 [nil,      arg]
+    @base, @raw = if self.class == arg.class
+      arg.raw ?
+        [nil, arg.raw] :
+        [arg.base, nil]
+    elsif RichText === arg
+      # For any other RichText object we take the base node
+      [arg.base, nil]
+    elsif TextNode === arg
+      # Also accept TextNodes
+      [arg, nil]
+    else
+      [nil, arg.to_s]
     end
   end
   

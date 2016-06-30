@@ -16,8 +16,11 @@ class RichText
   
   def initialize arg = ''
     @base, @raw = case arg
-    when self.class then [nil,  arg.raw]
+    when self.class
+      arg.raw ?          [nil,  arg.raw] :
+                         [arg.base, nil]
     when RichText   then [arg.base, nil]
+    when TextNode   then [arg,      nil]
     else                 [nil,      arg]
     end
   end
@@ -31,6 +34,30 @@ class RichText
   
   def to_s
     @base ? self.class::Format.generate(@base) : @raw
+  end
+  
+  
+  # Add (+)
+  #
+  # Add this RichText to another.
+  
+  def + other
+    # Same class
+    if other.class == self.class
+      # If neither of the two classes have been parsed yet
+      # the raw strings can safely be added
+      if @raw && other.raw
+        return self.class.new (@raw + other.raw)
+      end
+    end
+    
+    # Same root class
+    if RichText === other
+      return self.class.new (base + other.base)
+    end
+    
+    raise TypeError,
+        "cannot add #{other.class.name} to #{self.class.name}"
   end
   
   

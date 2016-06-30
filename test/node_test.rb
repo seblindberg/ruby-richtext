@@ -40,6 +40,22 @@ describe RichText::Node do
   }
   
   
+  describe '#+' do
+    it 'joins two nodes under a new root as siblings' do
+      node_a = subject.new name: 'a'
+      node_b = subject.new name: 'b'
+      
+      node_c = node_a + node_b
+      assert_equal 3, node_c.size
+      
+      children = node_c.each_child.to_a
+      
+      assert_equal node_a, children[0]
+      assert_equal node_b, children[1]
+    end
+  end
+  
+  
   describe '#add' do
     it 'accepts children' do
       assert_equal 0, node.count

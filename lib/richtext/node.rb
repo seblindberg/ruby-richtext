@@ -75,6 +75,18 @@ class RichText
     alias_method :<<, :add
     
     
+    # Add (+)
+    #
+    # Combine two nodes
+    
+    def + other
+      root = self.class.new
+      root.add self
+      root.add other
+      root
+    end
+    
+    
     # Each
     #
     # Iterate over each node in the tree, including self.

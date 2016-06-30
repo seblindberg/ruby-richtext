@@ -25,6 +25,12 @@ class RichText
     end
     
     
+    # Children
+    #
+    # Protected accessor for the children array. This array should never be 
+    # mutated from the outside and is only protected rather than private to be
+    # accessable to ther Nodes.
+    
     protected def children
       @children
     end
@@ -32,7 +38,7 @@ class RichText
     
     # Add child
     #
-    # A child is any object that respond to #to_s.
+    # A child is either another node or any object that respond to #to_s.
     
     def add *children
       if leaf?
@@ -175,12 +181,15 @@ class RichText
     
     
     def inspect
-      "#<Node %<attributes>p:%<id>#x>\n%{children}" % { 
-        id: self.object_id, 
-        children: @children.map{|c| 
-            c.inspect.gsub(/(^)/) { $1 + '  ' }}.join("\n"),
-        attributes: @attributes
-      }
+      base = '#<Node %<a>p:%<id>#x' % {id: self.object_id, a: @attributes}
+      
+      if leaf?
+        %Q{#{base} "#{@children[0]}">}
+      else
+        children = @children.map{|c| 
+            c.inspect.gsub(/(^)/) { $1 + '  ' }}.join("\n")
+        "#{base}>\n#{children}"
+      end
     end
   end
 end

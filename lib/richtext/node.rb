@@ -1,10 +1,18 @@
 class RichText
   class Node
+    include Enumerable
+    
     attr_reader :children, :attributes
     
     def initialize text = nil, **attributes
       @children   = text ? [text.to_s] : []
       @attributes = attributes
+    end
+    
+    
+    def initialize_copy original
+      @children   = original.children.map(&:dup)
+      @attributes = original.attributes.dup
     end
     
     
@@ -38,40 +46,50 @@ class RichText
     end
     
     
-    # Each child
+    # Each
     #
-    # Iterate over each child recursivly. This method will yield the leaf nodes 
-    # of the graph from left to right.
-    
-    def each_child &block
-      return to_enum(__callee__) unless block_given?
-      
-      return if leaf?
-      
-      @children.each do |child|
-        if child.leaf?
-          yield child
-        else
-          child.each_child(&block)
-        end
-      end
-    end
-    
+    # Iterate over each node in the tree, including self.
     
     def each &block
       return to_enum(__callee__) unless block_given?
       
       yield self
-      each_child(&block)
+      
+      return if leaf?
+      
+      @children.each do |child|
+        yield child
+        child.each(&block) unless child.leaf?
+      end
+    end
+    
+    
+    # Each Leaf
+    #
+    # Iterate over each leaf in the tree. This method will yield the leaf nodes 
+    # of the tree from left to right.
+    
+    def each_leaf &block
+      return to_enum(__callee__) unless block_given?
+      
+      return yield self if leaf?
+      
+      @children.each do |child|
+        if child.leaf?
+          yield child
+        else
+          child.each_leaf(&block)
+        end
+      end
     end
     
     
     # To String
     #
-    # Combine the text from all the leaf nodes in the graph, from left to right. 
+    # Combine the text from all the leaf nodes in the tree, from left to right. 
     
     def to_s
-      @children.reduce('') {|str, child| str + child.to_s }
+      each_leaf.reduce('') {|str, child| str + child.children[0] }
     end
     
     
@@ -90,16 +108,26 @@ class RichText
     # Returns the child count of this node.
     
     def count
-      @children.size
+      leaf? ? 0 : @children.size
     end
     
     
     # Size
     #
-    # Returns the size of the graph where this node is the root.
+    # Returns the size of the tree where this node is the root.
     
     def size
-      @children.reduce(1) {|total, child| total + child.size }
+      leaf? ? 1 : @children.reduce(1) {|total, child| total + child.size }
+    end
+    
+    
+    # Minimal
+    #
+    # Test if the tree under this node is minimal or not. A non minimal tree 
+    # contains children which themselvs only have one child.
+    
+    def minimal?
+      not any? {|node| node.count == 1 }
     end
     
     
@@ -109,14 +137,21 @@ class RichText
     # only has one child with its child.
     
     def optimize!
-      each_child.map do |child|
-        if Leaf == child || child.count > 1
-          child
-        else
-          # Also merge the attributes, with the child
-          # attributes overriding those of the parent
-          child.children.first
-        end
+      # If the node is a leaf it cannot be optimized further
+      return if leaf?
+      
+      # First optimize each of the children
+      @children.map(&:optimize!)
+      
+      # If we only have one child it is superfluous and
+      # should be merged. That means this node will inherrit
+      # the children of the single child as well as its
+      # attributes
+      if count == 1
+        child = @children[0]
+        # Move the children over
+        @children = child.children
+        @attributes.merge! child.attributes
       end
     end
     

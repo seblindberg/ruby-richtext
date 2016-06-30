@@ -9,7 +9,7 @@ describe RichText::Format do
       node = subject.parse 'test'
       
       assert_kind_of ::RichText::Node, node
-      assert_equal 'test', node.children.first
+      assert_equal 'test', node.children.first.to_s
     end
   end
   
@@ -22,7 +22,7 @@ describe RichText::Format do
     end
     
     it 'recursivly combines the nodes' do
-      lvl_1 = ::RichText::Node.new :lvl_1
+      lvl_1 = ::RichText::Node.new
       lvl_1 << 'hello'
       lvl_1 << ' '
       
@@ -36,13 +36,13 @@ describe RichText::Format do
     it 'passes the parent node to #generate' do
       mock = Class.new subject do
         def generate parent_node, string
-          parent_node.name.to_s + string
+          (parent_node[:name] || '') + string
         end
       end
       
-      node_a = ::RichText::Node.new :a
-      node_b = ::RichText::Node.new :b
-      node_c = ::RichText::Node.new :c
+      node_a = ::RichText::Node.new name: 'a' 
+      node_b = ::RichText::Node.new name: 'b'
+      node_c = ::RichText::Node.new name: 'c'
       
       node_c << 'd'
       node_b << node_c

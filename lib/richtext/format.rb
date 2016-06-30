@@ -15,7 +15,7 @@ class RichText
     # to wrap the given string in a base node.
     
     def parse string
-      Node.new.tap {|n| n << string }
+      Node.new string
     end
     
     
@@ -42,12 +42,14 @@ class RichText
     #
     # Delegate the generating to the format instance.
     
-    def self.generate node
+    def self.generate node      
       # Collect the combined string from the children
-      string = node.children.inject('') do |str, child|
-        str + (Node === child ? self.generate(child) : child)
-      end
+      string = node.leaf? ?
+        node.to_s :
+        node.children.inject('') {|s, child| s + generate(child) }
       
+      # Call the implementation specific #generate method
+      # on the string
       instance.generate node, string
     end
   end

@@ -61,7 +61,7 @@ class RichText
   
   
   def each_node &block
-    base.each_child(&block)
+    base.each(&block)
   end
   
   

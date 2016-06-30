@@ -5,6 +5,12 @@ class RichText
       self[:text] = text if text
     end
     
+    
+    # Text
+    #
+    # Read the text of the node. This will return nil unless the node is a leaf 
+    # node.
+    
     def text
       if leaf?
         self[:text] || ''
@@ -12,6 +18,7 @@ class RichText
         nil
       end
     end
+    
     
     # Add child
     #
@@ -21,8 +28,10 @@ class RichText
       if leaf?
         # Remove the text entry from the node and put it in a new leaf node 
         # among the children
-        new_children.unshift self.class.new(text: text) unless text.empty?
+        t = @attributes.delete(:text)
+        new_children.unshift self.class.new(t) unless t.nil? || t.empty?
       end
+      
       super
     end
     

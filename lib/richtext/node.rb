@@ -65,13 +65,6 @@ class RichText
     # A child is either another node or any object that respond to #to_s.
     
     def add *new_children
-      if leaf?
-        # Remove the text entry from the node and put it in a new leaf node 
-        # among the children
-        #text = @attributes[:text]
-        #@children << self.class.new(text: text) if text && !text.empty?
-      end
-      
       new_children.each do |c|
         @children << ((Node === c) ? c : self.class.new(c))
       end
@@ -215,7 +208,7 @@ class RichText
           c.inspect.gsub(/(^)/) { $1 + '  ' }}.join("\n")
           
       "#<%{name} %<a>p:%<id>#x>\n%{children}" % {
-          name: self.name, id: self.object_id, a: @attributes, children: children}
+          name: self.class.name, id: self.object_id, a: @attributes, children: children}
     end
   end
 end

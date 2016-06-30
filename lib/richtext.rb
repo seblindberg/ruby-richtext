@@ -3,9 +3,7 @@ require 'richtext/node'
 require 'richtext/text_node'
 require 'richtext/format'
 
-class RichText
-  FORMAT = Format
-  
+class RichText  
   # Initialize
   #
   # Create a new RichText object, either from a string or from an existing 
@@ -32,7 +30,7 @@ class RichText
   # returned.
   
   def to_s
-    @base ? FORMAT.generate(@base) : @raw
+    @base ? self.class::Format.generate(@base) : @raw
   end
   
   
@@ -43,7 +41,7 @@ class RichText
   
   protected def base
     unless @base
-      @base = FORMAT.parse @raw
+      @base = self.class::Format.parse @raw
       @raw  = nil # Free the cached string
     end
     

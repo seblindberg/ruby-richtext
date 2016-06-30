@@ -40,12 +40,25 @@ describe RichText::Node do
   }
   
   
-  it 'accepts children' do
-    assert_empty node.children
-    node << 'String'
-    refute_empty node.children
+  describe '#add' do
+    it 'accepts children' do
+      assert_equal 0, node.count
+      assert node.leaf?
+      
+      node << 'String'
+      assert_equal 1, node.count
+      refute node.leaf?
+    end
+    
+    it 'converts a leaf node to a regular node' do
+      leaf = subject.new 'leaf'
+      assert leaf.leaf?
+      
+      leaf << subject.new('other_leaf')
+      refute leaf.leaf?
+      assert_equal 2, leaf.count
+    end
   end
-  
   
   describe '#to_s' do
     it 'flattens the tree' do
@@ -114,7 +127,7 @@ describe RichText::Node do
       children = ['a', 'b', 'c']
       count    = 0
       
-      node.<<(*children)
+      node.add(*children)
       
       child_enum = children.each
       

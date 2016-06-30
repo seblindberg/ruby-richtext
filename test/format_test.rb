@@ -9,7 +9,8 @@ describe RichText::Format do
       node = subject.parse 'test'
       
       assert_kind_of ::RichText::Node, node
-      assert_equal 'test', node.children.first.to_s
+      # Check the text of the first leaf
+      assert_equal 'test', node.first.to_s
     end
   end
   

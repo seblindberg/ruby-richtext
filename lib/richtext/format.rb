@@ -46,7 +46,7 @@ class RichText
       # Collect the combined string from the children
       string = node.leaf? ?
         node.to_s :
-        node.children.inject('') {|s, child| s + generate(child) }
+        node.each_child.inject('') {|s, child| s + generate(child) }
       
       # Call the implementation specific #generate method
       # on the string

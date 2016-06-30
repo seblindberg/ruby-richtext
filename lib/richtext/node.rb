@@ -2,10 +2,10 @@ class RichText
   class Node
     include Enumerable
     
-    attr_reader :children, :attributes
+    attr_reader :attributes
     
     def initialize text = nil, **attributes
-      @children   = text ? [text.to_s] : []
+      @children   = text ? [text.to_s] : ['']
       @attributes = attributes
     end
     
@@ -25,17 +25,21 @@ class RichText
     end
     
     
+    protected def children
+      @children
+    end
+    
+    
     # Add child
     #
     # A child is any object that respond to #to_s.
     
-    def << *children
+    def add *children
       if leaf?
-        puts "=========== Leaf ==========="
-        p @children
-        @children << self.class.new(@children.pop)
-        p @children
-        puts "=========== End Leaf ==========="
+        # Remove the text entry from the node and put it in a new leaf node 
+        # among the children
+        text = @children.pop
+        @children << self.class.new(text) unless text.empty?
       end
       
       children.each do |c|
@@ -44,6 +48,8 @@ class RichText
 
       @children
     end
+    
+    alias_method :<<, :add
     
     
     # Each
@@ -81,6 +87,18 @@ class RichText
           child.each_leaf(&block)
         end
       end
+    end
+    
+    
+    # Each child
+    #
+    # Iterate over the children of this node.
+    
+    def each_child &block
+      return to_enum(__callee__) unless block_given?
+      return if leaf?
+      
+      @children.each(&block)
     end
     
     

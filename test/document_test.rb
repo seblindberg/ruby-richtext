@@ -60,7 +60,7 @@ describe RichText::Document do
       assert_equal orig.to_s, copy.to_s
     end
     
-    it 'accepts a TextNode tree' do
+    it 'accepts a tree of entries' do
       root   = subject::Entry.new 'a'
       root.add subject::Entry.new 'b'
       root.add subject::Entry.new 'c'
@@ -101,7 +101,7 @@ describe RichText::Document do
       text_ab = text_a + text_b
       
       assert_equal initial_node_count, text_node_count,
-          'No TextNodes should have been created'
+          'No Entries should have been created'
       assert_equal 'ab', text_ab.to_s
     end
     
@@ -113,7 +113,7 @@ describe RichText::Document do
       
       assert_equal 'ab', (text_a + text_b).to_s
       assert_operator initial_node_count, :<, text_node_count,
-          'Some new TextNodes should have been created'
+          'Some new Entries should have been created'
       
       assert_instance_of subject,  (text_a + text_b)
       assert_instance_of subclass, (text_b + text_a)

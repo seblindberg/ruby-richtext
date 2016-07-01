@@ -42,7 +42,7 @@ describe RichText::Document::Entry do
   describe '#add' do
     it 'accepts strings' do
       # Add a string as a child. This should be interpreted
-      # as a blank TextNode with the text 'test'
+      # as a blank Entry with the text 'test'
       node.add 'test'
       assert_equal 'test', node.each_child.first.text
     end

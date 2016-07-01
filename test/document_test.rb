@@ -36,7 +36,7 @@ describe RichText::Document do
       orig = subject.new 'test'
       
       # Force a call to .parse
-      orig.each_node
+      orig.base
       assert orig.parsed?
       
       copy = subject.new orig
@@ -147,11 +147,11 @@ describe RichText::Document do
   end
   
   
-  describe '#RichText' do
-    it 'also create a RichText object' do
-      assert_kind_of subject, RichText('test')
-    end
-  end
+  # describe '#RichText' do
+  #   it 'also create a RichText object' do
+  #     assert_kind_of subject, RichText('test')
+  #   end
+  # end
   
   describe '.from' do  
     it 'creates a new object from an existing one' do

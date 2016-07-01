@@ -2,13 +2,14 @@ module RichText
   class Document
     # Initialize
     #
-    # Create a new RichText object, either from a string or from an existing 
-    # object. That feature is particularly useful when converting between 
+    # Create a new RichText Document, either from a string or from an existing 
+    # ducument. That feature is particularly useful when converting between 
     # formats.
     #
-    # When given a string or a RichText object of the same class no parsing is 
-    # performed. Only when given a RichText object of a different class will 
-    # that object need to be parsed. Note that it allready may be. See #base for 
+    # When given a string or a RichText Document of the same class no parsing is 
+    # performed. Only when given a document of a different subclass will the 
+    # parser need to be run parsed. Note that the document(s) may already be in  
+    # parsed form, in which case no further parsing is performed. See #base for 
     # more details.
     
     def initialize arg = ''
@@ -20,7 +21,8 @@ module RichText
         # For any other RichText object we take the base node
         [arg.base, nil]
       elsif Entry === arg
-        # Also accept TextNodes
+        # Also accept an Entry which will be used as the
+        # document base
         [arg, nil]
       else
         [nil, arg.to_s]
@@ -30,16 +32,18 @@ module RichText
     
     # To String
     #
-    # Use the formats implementation of #generate to convert the RichText object 
-    # back into a string. If no base node exist yet the original input is 
-    # returned.
+    # Use the static implementation of .render to convert the document back into
+    # a string. If the document was never parsed (and is unchanged) the 
+    # origninal string is just returned.
     #
-    # If a block is given it will be used in place of Format#generate to format 
-    # the node tree.
+    # If a block is given it will be used in place of .render to format the node 
+    # tree.
     
     def to_s &block
-      if block_given? || parsed?
+      if block_given?
         base.to_s(&block)
+      elsif parsed?
+        self.class.render base
       else
         @raw
       end
@@ -84,10 +88,10 @@ module RichText
     
     # Base
     #
-    # Protected getter for the base node. If the raw input has not yet been 
+    # Getter for the base node. If the raw input has not yet been 
     # parsed that will happen first, before the base node is returned.
     
-    protected def base
+    def base
       unless @base
         @base = self.class.parse @raw
         @raw  = nil # Free the cached string
@@ -95,6 +99,8 @@ module RichText
       
       @base
     end
+    
+    alias_method :root, :base
     
     
     # Raw
@@ -116,13 +122,37 @@ module RichText
     end
     
     
+    # Each Node
+    #
+    # Iterate over all Entry nodes in the document tree.
+    
     def each_node &block
       base.each(&block)
     end
     
+    alias_method :each_entry, :each_node
+    
+    
+    # Parse
+    #
+    # Document type specific method for parsing a string and turning it into a 
+    # tree of entry nodes. This method is intended to be overridden when the 
+    # Document is subclassed. The default implementation just creates a top 
+    # level Entry containing the given string.
     
     def self.parse string
       Entry.new string
+    end
+    
+    
+    # Render
+    #
+    # Document type specific method for rendering a tree of entry nodes. This 
+    # method is intended to be overridden when the Document is subclassed. The 
+    # default implementation just concatenates the text entries into.
+    
+    def self.render base
+      base.to_s
     end
     
     

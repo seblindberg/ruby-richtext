@@ -42,7 +42,7 @@ class RichText
     
     # Leaf?
     #
-    # Is this node a leaf node?
+    # Returns true if this node a leaf (childless) node.
     
     def leaf?
       @children.empty?
@@ -77,13 +77,10 @@ class RichText
     
     # Add (+)
     #
-    # Combine two nodes
+    # Combines two nodes by creating a new root and adding the two as children.
     
     def + other
-      root = self.class.new
-      root.add self
-      root.add other
-      root
+      self.class.new.tap {|root| root.add self, other }
     end
     
     
@@ -110,7 +107,6 @@ class RichText
     
     def each_leaf &block
       return to_enum(__callee__) unless block_given?
-      
       return yield self if leaf?
       
       @children.each do |child|
@@ -128,7 +124,6 @@ class RichText
     # Iterate over the children of this node.
     
     def each_child &block
-      return to_enum(__callee__) unless block_given?
       @children.each(&block)
     end
     
@@ -152,7 +147,6 @@ class RichText
     # Returns the child count of this node.
     
     def count
-      #leaf? ? 0 : @children.size
       @children.size
     end
     
@@ -162,7 +156,6 @@ class RichText
     # Returns the size of the tree where this node is the root.
     
     def size
-      #leaf? ? 1 : @children.reduce(1) {|total, child| total + child.size }
       @children.reduce(1) {|total, child| total + child.size }
     end
     
@@ -173,14 +166,15 @@ class RichText
     # contains children which themselvs only have one child.
     
     def minimal?
-      not any? {|node| node.count == 1 }
+      all? {|node| node.count != 1 }
     end
     
     
     # Optimize!
     #
     # Go through each child and merge any node that a) is not a lead node and b) 
-    # only has one child with its child.
+    # only has one child, with its child. The attributes of the child will 
+    # override those of the parent.
     
     def optimize!
       # If the node is a leaf it cannot be optimized further

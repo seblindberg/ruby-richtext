@@ -272,5 +272,20 @@ describe RichText::Node do
       assert base.leaf?
       assert_equal 1, base.size
     end
+    
+    it 'overrides attributes of the parent with those of the child' do
+      base, _ = non_minimal_tree
+      child   = base.each_child.first
+      leaf    = child.each_child.first
+      
+      child[:attr_1] = 1
+      child[:attr_2] = 2
+      leaf[:attr_1]  = 3
+      
+      base.optimize!
+      
+      assert_equal 3, base[:attr_1]
+      assert_equal 2, base[:attr_2]
+    end
   end
 end

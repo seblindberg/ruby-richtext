@@ -47,13 +47,11 @@ class RichText
   # Add this RichText to another.
   
   def + other
-    # Same class
-    if other.class == self.class
-      # If neither of the two classes have been parsed yet
-      # the raw strings can safely be added
-      if @raw && other.raw
-        return self.class.new (@raw + other.raw)
-      end
+    # If the other object is of the same class, and neither
+    # one of the texts have been parsed, we can concatenate
+    # the raw inputs together
+    if other.class == self.class && !parsed? && !other.parsed?
+      return self.class.new (@raw + other.raw)
     end
     
     # Same root class
@@ -61,8 +59,15 @@ class RichText
       return self.class.new (base + other.base)
     end
     
-    raise TypeError,
+    unless other.respond_to?(:to_s)
+      raise TypeError,
         "cannot add #{other.class.name} to #{self.class.name}"
+    end
+    
+    # Assume that the input is a raw string of the same
+    # class as the current RichText object and wrap it
+    # before adding it
+    self + self.class.new(other)
   end
   
   
@@ -96,7 +101,7 @@ class RichText
   # representation is now a tree of nodes.
   
   def parsed?
-    not @raw.nil?
+    @raw.nil?
   end
   
   

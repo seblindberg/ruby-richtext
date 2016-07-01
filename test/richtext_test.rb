@@ -38,16 +38,29 @@ describe RichText do
     
     it 'accepts a RichText object that has parsed its content' do
       orig = subject.new 'test'
-      orig.each_node # Force the child to call .parse
+      
+      # Force a call to .parse
+      orig.each_node
+      assert orig.parsed?
+      
       copy = subject.new orig
       
       assert_equal orig.to_s, copy.to_s
     end
     
-    it 'accepts subclasses of RichText' do
+    it 'accepts subclasses' do
       orig = subclass.new 'test'
       copy = subject.new orig
       
+      assert copy.parsed?
+      assert_equal orig.to_s, copy.to_s
+    end
+    
+    it 'accepts superclasses' do
+      orig = subject.new 'test'
+      copy = subclass.new orig
+      
+      assert copy.parsed?
       assert_equal orig.to_s, copy.to_s
     end
     
@@ -58,6 +71,21 @@ describe RichText do
       
       rt = subject.new root
       assert_equal 'abc', rt.to_s
+    end
+  end
+  
+  
+  describe '#parsed?' do
+    it 'returns false when the object is not parsed' do
+      text = subject.new 'a'
+      refute text.parsed?
+    end
+    
+    it 'returns true when the object is parsed' do
+      root = subject::TextNode.new 'a'
+      text = subject.new root
+      
+      assert text.parsed?
     end
   end
   
@@ -88,6 +116,13 @@ describe RichText do
       
       assert_instance_of subject,  (text_a + text_b)
       assert_instance_of subclass, (text_b + text_a)
+    end
+    
+    it 'accepts a string' do
+      text_a  = subject.new 'a'
+      text_ab = text_a + 'b'
+      
+      assert_equal 'ab', text_ab.to_s
     end
   end
   

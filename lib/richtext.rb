@@ -16,9 +16,9 @@ class RichText
   
   def initialize arg = ''
     @base, @raw = if self.class == arg.class
-      arg.raw ?
-        [nil, arg.raw] :
-        [arg.base, nil]
+      arg.parsed? ?
+        [arg.base, nil] :
+        [nil, arg.raw]
     elsif RichText === arg
       # For any other RichText object we take the base node
       [arg.base, nil]
@@ -38,7 +38,7 @@ class RichText
   # returned.
   
   def to_s
-    @base ? self.class::Format.generate(@base) : @raw
+    parsed? ? self.class::Format.generate(@base) : @raw
   end
   
   
@@ -89,6 +89,15 @@ class RichText
     @raw
   end
   
+  
+  # Parsed?
+  #
+  # Returns true if the raw input has been parsed and the internal 
+  # representation is now a tree of nodes.
+  
+  def parsed?
+    not @raw.nil?
+  end
   
   
   def each_node &block

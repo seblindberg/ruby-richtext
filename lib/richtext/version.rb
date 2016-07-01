@@ -1,3 +1,3 @@
-class RichText
+module RichText
   VERSION = "0.1.0"
 end

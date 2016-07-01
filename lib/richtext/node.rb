@@ -21,7 +21,7 @@
 #                      ...
 # 
 
-class RichText
+module RichText
   class Node
     include Enumerable
     

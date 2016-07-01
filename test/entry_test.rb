@@ -1,7 +1,7 @@
 require 'test_helper'
 
-describe RichText::TextNode do
-  subject { ::RichText::TextNode }
+describe RichText::Document::Entry do
+  subject { ::RichText::Document::Entry }
   let(:node) { subject.new }
   
   # Minimal Tree:  0

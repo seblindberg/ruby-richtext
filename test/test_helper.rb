@@ -8,5 +8,5 @@ def node_count
 end
 
 def text_node_count
-  ObjectSpace.each_object(RichText::TextNode).count
+  ObjectSpace.each_object(RichText::Document::Entry).count
 end

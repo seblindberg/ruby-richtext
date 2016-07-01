@@ -22,7 +22,34 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+# Create a new RichText object
+rt = RichText.new 'hello '
+
+# Or use the more convenient method
+rt = RichText 'hello '
+
+# Format the text using attributes
+entry = rt.append 'world', bold: true, my_attribute: '.'
+
+# Some common styling attributes are supported directly
+entry.italic = true
+# Under the covers the attributes are stored as key-value pairs
+entry[:my_attribute] = '!'
+
+# Render the text without any formatting
+puts rt.to_s # => 'hello world'
+
+# Or style the text yourself
+html = rt.to_s do |entry, string|
+    # Access the attributes from the entry and format the
+    # string accordingly
+    string += entry[:my_attribute] if entry[:my_attribute]
+    string = "<b>#{string}</b> if entry.bold?
+end
+
+puts html # => 'hello <b>world!</b>'
+```
 
 ## Development
 

@@ -1,12 +1,8 @@
 require 'test_helper'
 
-describe RichText do
-  subject { ::RichText }
+describe RichText::Document do
+  subject { ::RichText::Document }
   let(:subclass) { Class.new subject }
-  
-  it 'has a version number' do
-    refute_nil subject::VERSION
-  end
   
   it 'only parses the format when it needs to' do
     initial_node_count = node_count 
@@ -65,9 +61,9 @@ describe RichText do
     end
     
     it 'accepts a TextNode tree' do
-      root   = subject::TextNode.new 'a'
-      root.add subject::TextNode.new 'b'
-      root.add subject::TextNode.new 'c'
+      root   = subject::Entry.new 'a'
+      root.add subject::Entry.new 'b'
+      root.add subject::Entry.new 'c'
       
       rt = subject.new root
       assert_equal 'abc', rt.to_s
@@ -82,11 +78,16 @@ describe RichText do
     end
     
     it 'returns true when the object is parsed' do
-      root = subject::TextNode.new 'a'
+      root = subject::Entry.new 'a'
       text = subject.new root
       
       assert text.parsed?
     end
+  end
+  
+  
+  describe '#to_s' do
+    # TODO
   end
   
   

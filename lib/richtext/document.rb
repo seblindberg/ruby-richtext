@@ -42,7 +42,7 @@ module RichText
     def to_s &block
       if block_given?
         base.to_s(&block)
-      elsif parsed?
+      elsif parsed? || should_parse?
         self.class.render base
       else
         @raw
@@ -93,7 +93,8 @@ module RichText
     
     def base
       unless @base
-        @base = self.class.parse @raw
+        @base = Entry.new
+        self.class.parse @base, @raw
         @raw  = nil # Free the cached string
       end
       
@@ -122,6 +123,11 @@ module RichText
     end
     
     
+    protected def should_parse?
+      false
+    end
+    
+    
     # Each Node
     #
     # Iterate over all Entry nodes in the document tree.
@@ -140,8 +146,8 @@ module RichText
     # Document is subclassed. The default implementation just creates a top 
     # level Entry containing the given string.
     
-    def self.parse string
-      Entry.new string
+    def self.parse base, string
+      base[:text] = string
     end
     
     

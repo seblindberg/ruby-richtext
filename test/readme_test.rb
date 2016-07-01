@@ -36,4 +36,35 @@ describe 'README.md' do
     # puts html # => 'hello <b>world!</b>'
     assert_equal 'hello <b>world!</b>', html
   end
+  
+  it 'subclasses' do
+    class MyFormat < RichText::Document
+      def should_parse?
+        true
+      end
+      
+      def self.parse base, string
+        # Format specific implementation to parse a string. Here
+        # each word is represented by its own entry. Entries are
+        # given a random visibility attribute.
+        string.split(' ').each do |word|
+          entry = RichText::Document::Entry.new word, visible: (word.length > 6)
+          base.add entry
+        end
+        base
+      end
+    
+      def self.render base
+        # Format specific implementation to render the document
+        base.to_s do |entry, string|
+          next string unless entry.leaf?
+          entry[:visible] ? string + ' ' : ''
+        end.rstrip!
+      end
+    end
+    
+    doc = MyFormat.new 'Format specific implementation to parse a string'
+    # puts doc.to_s # => 'specific implementation' 
+    assert_equal 'specific implementation', doc.to_s
+  end
 end

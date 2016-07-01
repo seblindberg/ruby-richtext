@@ -1,8 +1,8 @@
 # Richtext
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/richtext`. To experiment with that code, run `bin/console` for an interactive prompt.
+This gem is intended to simplify the handling of formatted text. Out of the box there is no support for any actual format, but that is intentional. The RichText::Document class is primarily ment to be subclassed and extended, and only includes functionality that is (potentially) useful to any format.
 
-TODO: Delete this and the text above, and describe your gem
+See _Usage_ below for more details on how to work with and extend the gem.
 
 ## Installation
 
@@ -23,18 +23,20 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
-# Create a new RichText object
-rt = RichText.new 'hello '
+# Create a new RichText document
+rt = RichText::Document.new 'hello '
 
 # Or use the more convenient method
 rt = RichText 'hello '
 
 # Format the text using attributes
-entry = rt.append 'world', bold: true, my_attribute: '.'
+entry = rt.append('world', bold: true, my_attribute: '.')
 
 # Some common styling attributes are supported directly
+# This line is equivalent to entry[:italic] = true
 entry.italic = true
-# Under the covers the attributes are stored as key-value pairs
+# Under the covers the attributes are stored as 
+# key-value pairs, so any attribute is valid
 entry[:my_attribute] = '!'
 
 # Render the text without any formatting
@@ -42,14 +44,54 @@ puts rt.to_s # => 'hello world'
 
 # Or style the text yourself
 html = rt.to_s do |entry, string|
-    # Access the attributes from the entry and format the
-    # string accordingly
-    string += entry[:my_attribute] if entry[:my_attribute]
-    string = "<b>#{string}</b> if entry.bold?
+  # Access the attributes from the entry and format the
+  # string accordingly
+  string += entry[:my_attribute] if entry[:my_attribute]
+  string = "<b>#{string}</b>" if entry.bold?
+  
+  # Return the formatted string at the end of the block
+  string
 end
 
 puts html # => 'hello <b>world!</b>'
 ```
+
+Implementing new formats is easy. Just extend the `RichText::Document` class and implement the class methods `.parse` and `.render`. The following snippet describes a document type that only renders words with more than 6 letters.
+
+```ruby
+class MyFormat < RichText::Document
+  # Use this method to signal if the document needs to be
+  # parsed, or if its raw form will work.
+  def should_parse?
+    true
+  end
+
+  def self.parse string
+    base = RichText::Document::Entry.new
+    # Format specific implementation to parse a string. Here
+    # each word is represented by its own entry. Entries are
+    # given a random visibility attribute.
+    string.split(' ').each do |word|
+      entry = RichText::Document::Entry.new word, visible: (word.length > 6)
+      base.add entry
+    end
+    base
+  end
+
+  def self.render base
+    # Format specific implementation to render the document
+    base.to_s do |entry, string|
+      next string unless entry.leaf?
+      entry[:visible] ? string + ' ' : ''
+    end.rstrip!
+  end
+end
+
+doc = MyFormat.new 'Format specific implementation to parse a string'
+puts doc.to_s # => 'specific implementation'
+
+```
+
 
 ## Development
 
@@ -59,7 +101,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/richtext.
+Bug reports and pull requests are welcome on GitHub at https://github.com/seblindberg/richtext.
 
 
 ## License

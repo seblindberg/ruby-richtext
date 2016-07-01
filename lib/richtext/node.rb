@@ -131,19 +131,6 @@ class RichText
       return to_enum(__callee__) unless block_given?
       @children.each(&block)
     end
-
-    
-    # To String
-    #
-    # Combine the text from all the leaf nodes in the tree, from left to right. 
-    
-    # def to_s &block
-    #   string = leaf? ? 
-    #     @attributes[:text] : 
-    #     @children.reduce('') {|str, child| str + child.to_s(&block) }
-    #     
-    #   block_given? ? yield(self, string) : string
-    # end
     
     
     # Attribute accessor
@@ -212,6 +199,33 @@ class RichText
         @children = child.children
         @attributes.merge! child.attributes
       end
+    end
+    
+    
+    # Shallow equality (exclude children)
+    #
+    # Returns true if the other node has the exact same attributes.
+    
+    def === other
+      @attributes == other.attributes
+    end
+    
+    
+    # Deep equality (include children)
+    #
+    # Returns true if the other node has the same attributes and its children 
+    # are also identical.
+    
+    def == other
+      # First make sure the nodes child count matches
+      return false unless count == other.count
+      
+      # The nodes are not equal if their attributes do not
+      # match
+      return false unless self === other
+      
+      # Lastly make sure all of the children are equal
+      each_child.zip(other.each_child).all? {|c| c[0] == c[1] }
     end
     
     

@@ -194,6 +194,67 @@ describe RichText::Node do
   end
   
   
+  describe '#===' do
+    it 'returns false when two nodes does not share the same attributes' do
+      node_a = subject.new name: 'a'
+      node_b = subject.new name: 'b'
+      
+      refute_operator node_a, :===, node_b
+    end
+    
+    it 'returns true when two nodes does share the same attributes' do
+      node_a = subject.new name: 'n'
+      node_b = subject.new name: 'n'
+      
+      assert_operator node_a, :===, node_b
+    end
+    
+    it 'returns true even though the children are not equal' do
+      node_a = subject.new name: 'n'
+      node_b = subject.new name: 'n'
+      node_b.add subject.new
+      
+      assert_operator node_a, :===, node_b
+    end
+  end
+  
+  describe '#==' do
+    it 'returns false when two nodes does not share the same attributes' do
+      node_a = subject.new name: 'a'
+      node_b = subject.new name: 'b'
+      
+      refute_operator node_a, :==, node_b
+    end
+    
+    it 'returns true when two nodes does share the same attributes' do
+      node_a = subject.new name: 'n'
+      node_b = subject.new name: 'n'
+      
+      assert_operator node_a, :==, node_b
+    end
+    
+    it 'returns false when the children are not equal' do
+      node_a = subject.new name: 'n'
+      node_b = subject.new name: 'n'
+      node_b.add subject.new name: 'b'
+      
+      refute_operator node_a, :==, node_b
+      
+      node_a.add subject.new name: 'a'
+      refute_operator node_a, :==, node_b
+    end
+    
+    it 'returns true when the children are equal' do
+      node_a = subject.new name: 'n'
+      node_a.add subject.new name: 'm'
+      node_b = subject.new name: 'n'
+      node_b.add subject.new name: 'm'
+      
+      assert_operator node_a, :==, node_b
+    end
+  end
+  
+  
   describe '#optimize!' do
     it 'deos nothing to an already minimal tree' do
       base, size = minimal_tree

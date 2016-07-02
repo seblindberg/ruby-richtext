@@ -30,7 +30,6 @@ module RichText
     def initialize **attributes
       @children   = []
       @attributes = attributes
-      #@attributes[:text] = text if text
     end
     
     
@@ -53,26 +52,41 @@ module RichText
     #
     # Protected accessor for the children array. This array should never be 
     # mutated from the outside and is only protected rather than private to be
-    # accessable to ther Nodes.
+    # accessable to other Nodes.
     
     protected def children
       @children
     end
     
     
-    # Add child
+    # Append
     #
-    # A child is either another node or any object that respond to #to_s.
+    # Add a child to the end of the node child list. The child must be of this 
+    # class to be accepted. Note that subclasses of Node will not accept regular 
+    # Nodes. The method returns self so that multiple children can be added via
+    # chaining:
+    #   root << child_a << child_b
     
-    def add *new_children
-      new_children.each do |c|
-        @children << ((Node === c) ? c : self.class.new(c))
+    def << child
+      unless child.is_a? self.class
+        raise TypeError, 
+          "Only objects of class #{self.class.name} can be appended"
       end
-
-      @children
+      
+      @children << child
+      self
     end
     
-    alias_method :<<, :add
+    
+    # Create Child
+    #
+    # Create and append a new child, initialized with the given attributes.
+    
+    def create_child **attributes
+      child = self.class.new(**attributes)
+      self << child
+      child
+    end
     
     
     # Add (+)
@@ -80,7 +94,7 @@ module RichText
     # Combines two nodes by creating a new root and adding the two as children.
     
     def + other
-      self.class.new.tap {|root| root.add self, other }
+      self.class.new.tap {|root| root << self << other }
     end
     
     
@@ -196,6 +210,11 @@ module RichText
     end
     
     
+    def optimize
+      dup.optimize!
+    end
+    
+    
     # Shallow equality (exclude children)
     #
     # Returns true if the other node has the exact same attributes.
@@ -224,11 +243,15 @@ module RichText
     
     
     def inspect
-      children = @children.reduce(''){|s, c| 
-          s + "\n" + c.inspect.gsub(/(^)/) { $1 + '  ' }}
+      children = @children.reduce('') do |s, c| 
+        s + "\n" + c.inspect.gsub(/(^)/) { $1 + '  ' }
+      end
           
-      "#<%{name} %<a>p:%<id>#x>%{children}" % {
-          name: self.class.name, id: self.object_id, a: @attributes, children: children}
+      format "#<%{name} %<attrs>p:%<id>#x>%{children}", 
+        name: self.class.name, 
+        id: self.object_id, 
+        attrs: @attributes, 
+        children: children
     end
   end
 end

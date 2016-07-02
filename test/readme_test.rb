@@ -48,10 +48,8 @@ describe 'README.md' do
         # each word is represented by its own entry. Entries are
         # given a random visibility attribute.
         string.split(' ').each do |word|
-          entry = RichText::Document::Entry.new word, visible: (word.length > 6)
-          base.add entry
+          base.create_child word, visible: (word.length > 6)
         end
-        base
       end
     
       def self.render base

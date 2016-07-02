@@ -61,9 +61,9 @@ describe RichText::Document do
     end
     
     it 'accepts a tree of entries' do
-      root   = subject::Entry.new 'a'
-      root.add subject::Entry.new 'b'
-      root.add subject::Entry.new 'c'
+      root  = subject::Entry.new('a')
+      root << subject::Entry.new('b')
+      root << subject::Entry.new('c')
       
       rt = subject.new root
       assert_equal 'abc', rt.to_s

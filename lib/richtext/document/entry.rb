@@ -39,23 +39,28 @@ module RichText
       end
       
       
-      # Add child
+      # Append
       #
-      # A child is either another node or any object that respond to #to_s.
+      # Since the text attribute is treated differently, and only leaf nodes can 
+      # expose it, it must be pushed to a new child if a) this node was a leaf 
+      # prior to this method call and b) its text attribute is not empty.
       
-      def add *new_children
+      def << child
         if leaf?
           # Remove the text entry from the node and put it in a new leaf node 
           # among the children, unless it is empty
-          if t = @attributes.delete(:text)
-            new_children.unshift self.class.new(t) unless t.empty?
+          if (t = @attributes.delete :text)
+            create_child(t) unless t.empty?
           end
         end
         
         super
       end
       
-      alias_method :<<, :add
+      
+      def create_child text = '', **attributes
+        super attributes.merge({ text: text })
+      end
       
       
       # To String

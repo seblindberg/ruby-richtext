@@ -12,12 +12,12 @@ describe RichText::Node do
   
   let(:minimal_tree) {
     child = subject.new name: '0'
-    child << {name: 'a'}
-    child << {name: 'b'}
+    child.create_child name: 'a'
+    child.create_child name: 'b'
     
     base = subject.new name: '0'
     base << child
-    base << {name: 'c'}
+    base.create_child name: 'c'
     
     [base, 5]
   }
@@ -31,7 +31,7 @@ describe RichText::Node do
   
   let(:non_minimal_tree) {
     child = subject.new name: '1'
-    child << {name: 'a'}
+    child.create_child name: 'a'
     
     base = subject.new name: '0'
     base << child
@@ -130,7 +130,7 @@ describe RichText::Node do
       children = ['a', 'b', 'c']
       count    = 0
       
-      node.add(*children.map{|n| {name: n} })
+      children.each { |n| node.create_child name: n }
       
       child_enum = children.each
       
@@ -157,12 +157,12 @@ describe RichText::Node do
       count      = 0
       
       lvl_1 = subject.new
-      lvl_1 << child_enum.next
+      lvl_1.create_child child_enum.next
       
       lvl_0 = subject.new
       lvl_0 << lvl_1
-      lvl_0 << child_enum.next
-      lvl_0 << child_enum.next
+      lvl_0.create_child child_enum.next
+      lvl_0.create_child child_enum.next
       
       child_enum = children.each
       
@@ -212,7 +212,7 @@ describe RichText::Node do
     it 'returns true even though the children are not equal' do
       node_a = subject.new name: 'n'
       node_b = subject.new name: 'n'
-      node_b.add subject.new
+      node_b << subject.new
       
       assert_operator node_a, :===, node_b
     end
@@ -236,19 +236,19 @@ describe RichText::Node do
     it 'returns false when the children are not equal' do
       node_a = subject.new name: 'n'
       node_b = subject.new name: 'n'
-      node_b.add subject.new name: 'b'
+      node_b << subject.new(name: 'b')
       
       refute_operator node_a, :==, node_b
       
-      node_a.add subject.new name: 'a'
+      node_a << subject.new(name: 'a')
       refute_operator node_a, :==, node_b
     end
     
     it 'returns true when the children are equal' do
       node_a = subject.new name: 'n'
-      node_a.add subject.new name: 'm'
+      node_a << subject.new(name: 'm')
       node_b = subject.new name: 'n'
-      node_b.add subject.new name: 'm'
+      node_b << subject.new(name: 'm')
       
       assert_operator node_a, :==, node_b
     end

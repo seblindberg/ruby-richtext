@@ -12,11 +12,11 @@ describe RichText::Document::Entry do
 
   let(:minimal_tree) {
     child = subject.new 'a'
-    child << 'b'
+    child.create_child 'b'
 
     base = subject.new
     base << child
-    base << 'c'
+    base.create_child 'c'
 
     base
   }
@@ -30,7 +30,7 @@ describe RichText::Document::Entry do
 
   let(:non_minimal_tree) {
     child = subject.new
-    child << 'a'
+    child.create_child 'a'
 
     base = subject.new
     base << child
@@ -43,7 +43,7 @@ describe RichText::Document::Entry do
     it 'accepts strings' do
       # Add a string as a child. This should be interpreted
       # as a blank Entry with the text 'test'
-      node.add 'test'
+      node.create_child 'test'
       assert_equal 'test', node.each_child.first.text
     end
     
@@ -53,7 +53,7 @@ describe RichText::Document::Entry do
       child = subject.new
       
       # Add the child to the leaf node
-      leaf.add child
+      leaf << child
       
       # The old leaf should no longer have any text
       assert_nil leaf.text

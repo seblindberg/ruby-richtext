@@ -13,20 +13,21 @@ module RichText
     # more details.
     
     def initialize arg = ''
-      @base, @raw = if self.class == arg.class
-        arg.parsed? ?
-          [arg.base, nil] :
-          [nil, arg.raw]
-      elsif Document === arg
-        # For any other RichText object we take the base node
-        [arg.base, nil]
-      elsif Entry === arg
-        # Also accept an Entry which will be used as the
-        # document base
-        [arg, nil]
-      else
-        [nil, arg.to_s]
-      end
+      @base, @raw = 
+        if arg.class == self.class
+          arg.parsed? ?
+            [arg.base, nil] :
+            [nil, arg.raw]
+        elsif arg.is_a? Document
+          # For any other RichText object we take the base node
+          [arg.base, nil]
+        elsif arg.is_a? Entry
+          # Also accept an Entry which will be used as the
+          # document base
+          [arg, nil]
+        else
+          [nil, arg.to_s]
+        end
     end
     
     
@@ -59,17 +60,17 @@ module RichText
       # one of the texts have been parsed, we can concatenate
       # the raw inputs together
       if other.class == self.class && !parsed? && !other.parsed?
-        return self.class.new (@raw + other.raw)
+        return self.class.new(@raw + other.raw)
       end
       
       # Same root class
-      if Document === other
-        return self.class.new (base + other.base)
+      if other.is_a? Document
+        return self.class.new(base + other.base)
       end
       
-      unless other.respond_to?(:to_s)
+      unless other.respond_to? :to_s
         raise TypeError,
-          "cannot add #{other.class.name} to #{self.class.name}"
+          "Cannot add #{other.class.name} to #{self.class.name}"
       end
       
       # Assume that the input is a raw string of the same
@@ -79,10 +80,12 @@ module RichText
     end
     
     
+    # Append
+    #
+    #
+    
     def append string, **attributes
-      node = Entry.new(string, **attributes)
-      base.add node
-      node
+      base.create_child string, **attributes
     end
     
     
@@ -95,7 +98,7 @@ module RichText
       unless @base
         @base = Entry.new
         self.class.parse @base, @raw
-        @raw  = nil # Free the cached string
+        @raw  = nil
       end
       
       @base
@@ -169,9 +172,9 @@ module RichText
     # creation from another RichText object explicit.
     
     def self.from doc
-      unless Document === doc
+      unless doc.is_a? Document
         raise TypeError, 
-            "Can only create a #{self.name} from other RichText objects"
+          "Can only create a #{self.name} from other RichText Documents"
       end
           
       self.new doc

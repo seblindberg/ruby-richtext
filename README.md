@@ -35,7 +35,7 @@ entry = rt.append('world', bold: true, my_attribute: '.')
 # Some common styling attributes are supported directly
 # This line is equivalent to entry[:italic] = true
 entry.italic = true
-# Under the covers the attributes are stored as 
+# Under the covers the attributes are stored as
 # key-value pairs, so any attribute is valid
 entry[:my_attribute] = '!'
 
@@ -43,12 +43,12 @@ entry[:my_attribute] = '!'
 puts rt.to_s # => 'hello world'
 
 # Or style the text yourself
-html = rt.to_s do |entry, string|
+html = rt.to_s do |e, string|
   # Access the attributes from the entry and format the
   # string accordingly
-  string += entry[:my_attribute] if entry[:my_attribute]
-  string = "<b>#{string}</b>" if entry.bold?
-  
+  string += e[:my_attribute] if e[:my_attribute]
+  string = "<b>#{string}</b>" if e.bold?
+
   # Return the formatted string at the end of the block
   string
 end
@@ -60,30 +60,27 @@ Implementing new formats is easy. Just extend the `RichText::Document` class and
 
 ```ruby
 class MyFormat < RichText::Document
-  # Use this method to signal if the document needs to be
-  # parsed, or if its raw form will work.
   def should_parse?
     true
   end
 
-  def self.parse string
-    base = RichText::Document::Entry.new
+  def self.parse(base, string)
     # Format specific implementation to parse a string. Here
     # each word is represented by its own entry. Entries are
     # given a random visibility attribute.
     string.split(' ').each do |word|
-      entry = RichText::Document::Entry.new word, visible: (word.length > 6)
-      base.add entry
+      base.create_child word, visible: (word.length > 6)
     end
-    base
   end
 
-  def self.render base
+  def self.render(base)
     # Format specific implementation to render the document
-    base.to_s do |entry, string|
+    str = base.to_s do |entry, string|
       next string unless entry.leaf?
       entry[:visible] ? string + ' ' : ''
-    end.rstrip!
+    end
+
+    str.rstrip
   end
 end
 

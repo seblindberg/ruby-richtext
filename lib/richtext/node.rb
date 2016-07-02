@@ -199,7 +199,7 @@ module RichText
 
     def inspect
       children = @children.reduce('') do |s, c|
-        s + "\n" + c.inspect.gsub(/(^)/) { |m| m[1] + '  ' }
+        s + "\n" + c.inspect.gsub(/(^)/) { |m| m + '  ' }
       end
 
       format '#<%{name} %<attrs>p:%<id>#x>%{children}',

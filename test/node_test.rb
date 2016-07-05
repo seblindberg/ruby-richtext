@@ -280,4 +280,13 @@ describe RichText::Node do
       assert_equal 2, base[:attr_2]
     end
   end
+  
+  describe '#optimize' do
+    it 'returns a new tree that is minimal' do
+      base, = non_minimal_tree
+      minimal_base = base.optimize
+      
+      assert minimal_base.minimal?
+    end
+  end
 end

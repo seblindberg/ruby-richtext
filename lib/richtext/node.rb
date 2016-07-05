@@ -157,7 +157,7 @@ module RichText
     # override those of the parent.
     def optimize!
       # If the node is a leaf it cannot be optimized further
-      return if leaf?
+      return self if leaf?
 
       # First optimize each of the children
       @children.map(&:optimize!)
@@ -172,6 +172,8 @@ module RichText
         @children = child.children
         @attributes.merge! child.attributes
       end
+      
+      self
     end
 
     def optimize

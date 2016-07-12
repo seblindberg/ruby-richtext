@@ -131,7 +131,6 @@ module RichText
     # tree of entry nodes. This method is intended to be overridden when the
     # Document is subclassed. The default implementation just creates a top
     # level Entry containing the given string.
-
     def self.parse(base, string)
       base[:text] = string
     end
@@ -141,7 +140,6 @@ module RichText
     # Document type specific method for rendering a tree of entry nodes. This
     # method is intended to be overridden when the Document is subclassed. The
     # default implementation just concatenates the text entries into.
-
     def self.render(base)
       base.to_s
     end

@@ -72,4 +72,14 @@ describe RichText::Document::Entry do
       assert_equal 'a',   non_minimal_tree.to_s
     end
   end
+
+  describe '#optimize!' do
+    it 'removes leaf children with blank text entries' do
+      base = subject.new 'text'
+      base << subject.new
+      assert_equal 3, base.size
+      base.optimize!
+      assert_equal 1, base.size
+    end
+  end
 end

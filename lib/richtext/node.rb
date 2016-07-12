@@ -159,8 +159,14 @@ module RichText
       # If the node is a leaf it cannot be optimized further
       return self if leaf?
 
-      # First optimize each of the children
-      @children.map(&:optimize!)
+      # First optimize each of the children. If a block was
+      # given each child will be yielded to it, and children
+      # for which the block returns false will be removed
+      if block_given?
+        @children.select! { |child| yield child.optimize! }
+      else
+        @children.map(&:optimize!)
+      end
 
       # If we only have one child it is superfluous and
       # should be merged. That means this node will inherrit
@@ -172,7 +178,7 @@ module RichText
         @children = child.children
         @attributes.merge! child.attributes
       end
-      
+
       self
     end
 

@@ -52,6 +52,15 @@ module RichText
         super attributes.merge(text: text)
       end
 
+      # Optimize!
+      #
+      # See RichText::Node#optimize! for a description of the fundemental
+      # behavior. Entries differ from regular Nodes in that leaf children with
+      # no text in them will be removed.
+      def optimize!
+        super { |child| !child.leaf? || !child.text.empty? }
+      end
+
       # To String
       #
       # Combine the text from all the leaf nodes in the tree, from left to

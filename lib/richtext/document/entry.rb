@@ -20,8 +20,8 @@ module RichText
       # Extend the default Node initializer by also accepting a string. It will,
       # if given, be stored as a text attribute.
       def initialize(text = nil, **attributes)
+        attributes[:text] = text if text
         super attributes
-        self[:text] = text if text
       end
 
       # Text
@@ -50,8 +50,9 @@ module RichText
         super
       end
 
-      def create_child(text = '', **attributes)
-        super attributes.merge(text: text)
+      def create_child(text = nil, **attributes)
+        attributes = attributes.merge(text: text) if text
+        super attributes
       end
 
       # Optimize!

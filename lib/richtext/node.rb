@@ -46,6 +46,20 @@ module RichText
     def leaf?
       @children.empty?
     end
+    
+    # Child
+    #
+    # Access the individual children of the node. If the method is called
+    # without argument and the node has only one child it will be returned.
+    # Otherwise an exception will be raised.
+    def child n = nil
+      if n
+        @children[n]
+      else
+        raise 'Node does not have one child' unless count == 1
+        @children[0]
+      end
+    end
 
     # Append
     #

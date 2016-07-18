@@ -50,9 +50,13 @@ module RichText
         super
       end
 
+      # Create Child
+      #
+      # Create and append a new child, initialized with the given text and
+      # attributes.
       def create_child(text = nil, **attributes)
         attributes = attributes.merge(text: text) if text
-        super attributes
+        super(attributes)
       end
 
       # Optimize!

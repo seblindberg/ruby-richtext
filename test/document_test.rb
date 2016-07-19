@@ -87,6 +87,15 @@ describe RichText::Document do
     # TODO
   end
 
+  describe '#to_plain' do
+    it 'returns the string with no formatting' do
+      rt = subject.new 'a'
+      rt.append 'b', bold: true
+      
+      assert_equal 'ab', rt.to_s
+    end
+  end
+
   describe '#+' do
     it 'combines two objects into a new one' do
       initial_node_count = text_node_count

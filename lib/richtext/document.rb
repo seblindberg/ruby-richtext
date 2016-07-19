@@ -52,6 +52,14 @@ module RichText
       end
     end
 
+    # To Plain
+    #
+    # Returns the strings from all of the leaf nodes without any formatting
+    # applied.
+    def to_plain
+      base.to_s
+    end
+
     # Add (+)
     #
     # Add another Document to this one. If the two are of (exactly) the same

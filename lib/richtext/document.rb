@@ -20,7 +20,7 @@ module RichText
     # more details.
     def initialize(arg = '')
       @base, @raw =
-        if arg.class == self.class
+        if arg.instance_of? self.class
           arg.parsed? ? [arg.base, nil] : [nil, arg.raw]
         elsif arg.is_a? Document
           # For any other RichText object we take the base node

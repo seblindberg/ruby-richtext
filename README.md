@@ -1,4 +1,4 @@
-# Richtext
+# RichText [![Build Status](https://travis-ci.org/seblindberg/ruby-richtext.svg?branch=master)](https://travis-ci.org/seblindberg/ruby-richtext)
 
 This gem is intended to simplify the handling of formatted text. Out of the box there is no support for any actual format, but that is intentional. The RichText::Document class is primarily ment to be subclassed and extended, and only includes functionality that is (potentially) useful to any format.
 

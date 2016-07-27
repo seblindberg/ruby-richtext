@@ -1,5 +1,9 @@
 require 'test_helper'
 
+# TODO:
+# - #dup duplicates text + attributes
+# - #freeze freezes text + attributes
+
 describe RichText::Document::Entry do
   subject { ::RichText::Document::Entry }
   

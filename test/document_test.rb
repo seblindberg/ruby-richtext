@@ -91,7 +91,7 @@ describe RichText::Document do
     it 'returns the string with no formatting' do
       rt = subject.new 'a'
       rt.append 'b', bold: true
-      
+
       assert_equal 'ab', rt.to_s
     end
   end

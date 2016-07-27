@@ -143,7 +143,7 @@ module RichText
     # Document is subclassed. The default implementation just creates a top
     # level Entry containing the given string.
     def self.parse(base, string)
-      base[:text] = string
+      base.text = string
     end
 
     # Render

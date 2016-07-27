@@ -14,7 +14,9 @@ module RichText
     # accesser methods. The attributes are are bold, italic, underline, color
     # and font.
     #
-    class Entry < Node
+    class Entry < RootedTree::Node
+      protected :prepend_child, :prepend_sibling
+      
       # Initialize
       #
       # Extend the default Node initializer by also accepting a string. It will,
@@ -22,6 +24,14 @@ module RichText
       def initialize(text = nil, **attributes)
         attributes[:text] = text if text
         super attributes
+      end
+      
+      def [](key)
+        value[key]
+      end
+      
+      def []=(key, v)
+        value[key] = v
       end
 
       # Text
@@ -38,25 +48,32 @@ module RichText
       # Since the text attribute is treated differently, and only leaf nodes can
       # expose it, it must be pushed to a new child if a) this node was a leaf
       # prior to this method call and b) its text attribute is not empty.
-      def <<(child)
-        if leaf?
-          # Remove the text entry from the node and put it in a new leaf node
-          # among the children, unless it is empty
-          if (t = @attributes.delete :text)
-            create_child(t) unless t.empty?
-          end
-        end
-
-        super
-      end
+      # def <<(child)
+      #   if leaf?
+      #     # Remove the text entry from the node and put it in a new leaf node
+      #     # among the children, unless it is empty
+      #     if (t = value.delete :text)
+      #       create_child(t) unless t.empty?
+      #     end
+      #   end
+      #
+      #   super
+      # end
 
       # Create Child
       #
       # Create and append a new child, initialized with the given text and
       # attributes.
-      def create_child(text = nil, **attributes)
-        attributes = attributes.merge(text: text) if text
-        super(attributes)
+      def append_child(text = nil, **attributes)
+        if leaf? && (t = value.delete :text)
+          super self.class.new(t)
+        end
+          
+        if text.is_a? self.class
+          super text
+        else
+          super self.class.new(text, attributes)
+        end
       end
 
       # Optimize!
@@ -65,7 +82,8 @@ module RichText
       # behavior. Entries differ from regular Nodes in that leaf children with
       # no text in them will be removed.
       def optimize!
-        super { |child| !child.leaf? || !child.text.empty? }
+        #super { |child| !child.leaf? || !child.text.empty? }
+        self
       end
 
       # To String
@@ -80,7 +98,7 @@ module RichText
           if leaf?
             text
           else
-            @children.reduce('') { |a, e| a + e.to_s(&block) }
+            children.reduce('') { |a, e| a + e.to_s(&block) }
           end
 
         block_given? ? yield(self, string) : string

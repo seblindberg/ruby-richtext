@@ -1,3 +1,5 @@
+require 'rooted_tree'
+
 require 'richtext/version'
 require 'richtext/node'
 require 'richtext/document/entry'

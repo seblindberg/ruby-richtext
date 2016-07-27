@@ -95,7 +95,7 @@ module RichText
     #
     #
     def append(string, **attributes)
-      base.create_child string, **attributes
+      base.append_child string, **attributes
     end
 
     # Base

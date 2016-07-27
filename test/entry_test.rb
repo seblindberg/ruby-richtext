@@ -3,6 +3,7 @@ require 'test_helper'
 describe RichText::Document::Entry do
   subject { ::RichText::Document::Entry }
   let(:node) { subject.new }
+  let(:child) { subject.new }
 
   # Minimal Tree:  0
   # Size: 5       / \
@@ -37,32 +38,47 @@ describe RichText::Document::Entry do
     base
   end
 
-  describe '#<<' do
+  describe '#append_child' do
+    it 'appends children' do
+      node.append_child child
+      assert_same node.child, child
+    end
+    
     it 'moves the text from a leaf node to a new child' do
       # Create a leaf node and a child
       leaf  = subject.new 'text'
       child = subject.new
 
       # Add the child to the leaf node
-      leaf << child
+      leaf.append_child child
 
       # The old leaf should no longer have any text
-      assert_nil leaf.text
       assert_nil leaf[:text]
 
       # The text that was previously in the old leaf should
       # now be in the first of the two children of the leaf
-      assert_equal 2, leaf.count
-      assert_equal 'text', leaf.each_child.first.text
+      assert_equal 2, leaf.degree
+      assert_equal 'text', leaf.child(0).text
     end
-  end
-
-  describe '#create_child' do
+    
     it 'accepts strings' do
       # Add a string as a child. This should be interpreted
       # as a blank Entry with the text 'test'
-      node.create_child 'test'
-      assert_equal 'test', node.each_child.first.text
+      node.append_child 'test', bold: true
+      assert_equal 'test', node.child.text
+      assert node.child.bold?
+    end
+  end
+  
+  describe '#prepend_child' do
+    it 'is protected' do
+      assert_raises(NoMethodError) { node.prepend_child }
+    end
+  end
+  
+  describe '#prepend_sibling' do
+    it 'is protected' do
+      assert_raises(NoMethodError) { node.prepend_sibling }
     end
   end
 

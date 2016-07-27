@@ -1,4 +1,7 @@
+require 'rooted_tree'
+
 require 'richtext/version'
+require 'richtext/styleable'
 require 'richtext/node'
 require 'richtext/document/entry'
 require 'richtext/document'

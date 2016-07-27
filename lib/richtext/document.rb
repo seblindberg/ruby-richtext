@@ -28,7 +28,7 @@ module RichText
         elsif arg.is_a? Entry
           # Also accept an Entry which will be used as the
           # document base
-          [arg, nil]
+          [arg.root, nil]
         else
           [nil, arg.to_s]
         end
@@ -76,7 +76,7 @@ module RichText
       if other.class == self.class && !parsed? && !other.parsed?
         return self.class.new(@raw + other.raw)
       end
-
+      
       # Same root class
       return self.class.new(base + other.base) if other.is_a? Document
 
@@ -93,9 +93,10 @@ module RichText
 
     # Append
     #
-    #
+    # Returns the newly created child.
     def append(string, **attributes)
-      base.create_child string, **attributes
+      base.append_child string, **attributes
+      base.child(-1)
     end
 
     # Base
@@ -142,7 +143,7 @@ module RichText
     # Document is subclassed. The default implementation just creates a top
     # level Entry containing the given string.
     def self.parse(base, string)
-      base[:text] = string
+      base.text = string
     end
 
     # Render

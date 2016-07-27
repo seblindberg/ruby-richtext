@@ -91,37 +91,42 @@ describe RichText::Document do
     it 'returns the string with no formatting' do
       rt = subject.new 'a'
       rt.append 'b', bold: true
-      
+
       assert_equal 'ab', rt.to_s
     end
   end
 
   describe '#+' do
     it 'combines two objects into a new one' do
-      initial_node_count = text_node_count
+      initial_node_count = node_count
 
       text_a = subject.new 'a'
       text_b = subject.new 'b'
-
+      
       text_ab = text_a + text_b
 
-      assert_equal initial_node_count, text_node_count,
+      assert_equal initial_node_count, node_count,
                    'No Entries should have been created'
       assert_equal 'ab', text_ab.to_s
     end
+    
+    it 'copies the node structures rather than modify them' do
+      
+    end
 
     it 'combines dissimilar classes' do
-      text_a = subject.new  'a'
-      text_b = subclass.new 'b'
+      text_a = subclass.new 'a'
+      text_b = subject.new 'b'
+      
+      initial_node_count = node_count
+      
+      text_ab = text_a + text_b
 
-      initial_node_count = text_node_count
-
-      assert_equal 'ab', (text_a + text_b).to_s
-      assert_operator initial_node_count, :<, text_node_count,
+      assert_equal 'ab', text_ab.to_s
+      assert_operator initial_node_count, :<, node_count,
                       'Some new Entries should have been created'
 
-      assert_instance_of subject,  (text_a + text_b)
-      assert_instance_of subclass, (text_b + text_a)
+      assert_instance_of subclass, text_ab
     end
 
     it 'accepts a string' do

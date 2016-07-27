@@ -74,7 +74,7 @@ class MyFormat < RichText::Document
     # each word is represented by its own entry. Entries are
     # given a random visibility attribute.
     string.split(' ').each do |word|
-      base.create_child word, visible: (word.length > 6)
+      base.append_child word, visible: (word.length > 6)
     end
   end
 

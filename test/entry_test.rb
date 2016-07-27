@@ -2,6 +2,7 @@ require 'test_helper'
 
 describe RichText::Document::Entry do
   subject { ::RichText::Document::Entry }
+  
   let(:node) { subject.new }
   let(:child) { subject.new }
 
@@ -12,12 +13,12 @@ describe RichText::Document::Entry do
   #           'a' 'b'
   #
   let(:minimal_tree) do
-    child = subject.new 'a'
-    child.create_child 'b'
-
+    ab = subject.new 'a'
+    ab.append_child 'b'
+    
     base = subject.new
-    base << child
-    base.create_child 'c'
+    base << ab
+    base << 'c'
 
     base
   end
@@ -30,7 +31,7 @@ describe RichText::Document::Entry do
   #
   let(:non_minimal_tree) do
     child = subject.new
-    child.create_child 'a'
+    child << 'a'
 
     base = subject.new
     base << child
@@ -67,6 +68,10 @@ describe RichText::Document::Entry do
       node.append_child 'test', bold: true
       assert_equal 'test', node.child.text
       assert node.child.bold?
+    end
+    
+    it 'is also available as the alias #<<' do
+      assert_equal node.method(:append_child), node.method(:<<)
     end
   end
   

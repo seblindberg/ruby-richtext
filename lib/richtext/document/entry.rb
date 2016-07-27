@@ -15,7 +15,7 @@ module RichText
     # and font.
     #
     class Entry < RootedTree::Node
-      protected :prepend_child, :prepend_sibling
+      protected :prepend_child, :prepend_sibling, :value
       
       # Initialize
       #
@@ -26,12 +26,14 @@ module RichText
         super attributes
       end
       
+      alias attributes value
+      
       def [](key)
-        value[key]
+        attributes[key]
       end
       
       def []=(key, v)
-        value[key] = v
+        attributes[key] = v
       end
 
       # Text
@@ -66,7 +68,7 @@ module RichText
       # attributes.
       def append_child(text = nil, **attributes)
         if leaf? && (t = value.delete :text)
-          super self.class.new(t)
+          append_child self.class.new(t)
         end
           
         if text.is_a? self.class
@@ -75,15 +77,46 @@ module RichText
           super self.class.new(text, attributes)
         end
       end
-
+      
+      alias << append_child
+      
       # Optimize!
       #
-      # See RichText::Node#optimize! for a description of the fundemental
-      # behavior. Entries differ from regular Nodes in that leaf children with
-      # no text in them will be removed.
+      # Go through each child and merge any node that a) is not a lead node and b)
+      # only has one child, with its child. The attributes of the child will
+      # override those of the parent.
       def optimize!
-        #super { |child| !child.leaf? || !child.text.empty? }
+        # If the node is a leaf it cannot be optimized further
+        return self if leaf?
+      
+        # First optimize each of the children. If a block was
+        # given each child will be yielded to it, and children
+        # for which the block returns false will be removed
+        if block_given?
+          children.each { |child| child.delete unless yield child.optimize! }
+        else
+          children.each do |child|
+            child.optimize!
+            child.delete if child.leaf? && child.text.empty?
+          end
+        end
+      
+        # If we only have one child it is superfluous and
+        # should be merged. That means this node will inherrit
+        # the children of the single child as well as its
+        # attributes
+        if degree == 1
+          # Move the attributes over
+          attributes.merge! child.attributes
+          # Get the children of the child and add them to self
+          first_child.delete.each { |child| append_child child }
+        end
+      
         self
+      end
+      
+      def optimize
+        dup.optimize!
       end
 
       # To String
@@ -102,6 +135,16 @@ module RichText
           end
 
         block_given? ? yield(self, string) : string
+      end
+      
+      def inspect *args, &block
+        unless block_given?
+          block = proc do |entry|
+            entry.leaf? ? entry.text : 'Entry'
+          end
+        end
+        
+        super(*args, &block)
       end
 
       # Supported Text Attributes

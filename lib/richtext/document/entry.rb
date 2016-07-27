@@ -2,8 +2,7 @@
 
 module RichText
   class Document
-    # Entry
-    #
+    
     # The Entry class extends the basic Node class and adds methods that make
     # handling text a little nicer. Essentially the :text attribute is given
     # special status by allowing it to a) be set during initialization, b) only
@@ -13,7 +12,7 @@ module RichText
     # Some attributes are also supported explicitly by the inclusion of special
     # accesser methods. The attributes are are bold, italic, underline, color
     # and font.
-    #
+    
     class Entry < RootedTree::Node
       include Styleable
       
@@ -24,7 +23,6 @@ module RichText
       # if given, be stored as a text attribute.
       
       def initialize(text = nil, **attributes)
-        #attributes[:text] = text if text
         @attributes = attributes
         super text
       end
@@ -98,20 +96,14 @@ module RichText
       #
       # Returns self.
       
-      def optimize!
+      def optimize!(&block)
         # If the node is a leaf it cannot be optimized further
         return self if leaf?
+        
+        block = proc { |e| e.leaf? && e.text.empty? } unless block_given?
       
-        # First optimize each of the children. If a block was
-        # given each child will be yielded to it, and children
-        # for which the block returns false will be removed
-        if block_given?
-          children.each { |child| child.delete unless yield child.optimize! }
-        else
-          children.each do |child|
-            child.optimize!
-            child.delete if child.leaf? && child.text.empty?
-          end
+        children.each do |child|
+          child.delete if block.call child.optimize!(&block)
         end
       
         # If we only have one child it is superfluous and
@@ -134,8 +126,8 @@ module RichText
       #
       # Returns the root of the new optimized node structure.
       
-      def optimize
-        dup.optimize!
+      def optimize(&block)
+        dup.optimize!(&block)
       end
 
       # Combine the text from all the leaf nodes in the tree, from left to

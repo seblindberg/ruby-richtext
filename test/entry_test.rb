@@ -106,5 +106,28 @@ describe RichText::Document::Entry do
       base.optimize!
       assert_equal 1, base.size
     end
+    
+    it 'accepts a block for how to optimize' do
+      minimal_tree.optimize! do |entry|
+        entry.text == 'b'
+      end
+      
+      assert_equal 'ac', minimal_tree.to_s
+    end
+  end
+  
+  describe '#optimize' do
+    it 'optimizes a copy of the original' do
+      root = non_minimal_tree.optimize
+      refute_same non_minimal_tree, root
+    end
+    
+    it 'accepts a block for how to optimize' do
+      root = minimal_tree.optimize do |entry|
+        entry.text == 'b'
+      end
+      
+      assert_equal 'ac', root.to_s
+    end
   end
 end

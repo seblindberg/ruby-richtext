@@ -3,6 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/richtext.png)](http://badge.fury.io/rb/richtext)
 [![Build Status](https://travis-ci.org/seblindberg/ruby-richtext.svg?branch=master)](https://travis-ci.org/seblindberg/ruby-richtext) 
 [![Coverage Status](https://coveralls.io/repos/github/seblindberg/ruby-richtext/badge.svg?branch=master)](https://coveralls.io/github/seblindberg/ruby-richtext?branch=master)
+[![Inline docs](http://inch-ci.org/github/seblindberg/ruby-richtext.svg?branch=master)](http://inch-ci.org/github/seblindberg/ruby-richtext)
 
 This gem is intended to simplify the handling of formatted text. Out of the box there is no support for any actual format, but that is intentional. The RichText::Document class is primarily ment to be subclassed and extended, and only includes functionality that is (potentially) useful to any format.
 

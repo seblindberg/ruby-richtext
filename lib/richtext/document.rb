@@ -18,7 +18,7 @@ module RichText
     # more details.
 
     def initialize(arg = '')
-      @base, @raw =
+      @root, @raw =
         if arg.instance_of? self.class
           arg.parsed? ? [arg.base, nil] : [nil, arg.raw]
         elsif arg.is_a? Document
@@ -87,6 +87,12 @@ module RichText
       self + self.class.new(other)
     end
 
+    # Append a string to the document. The string will not be parsed but
+    # inserted into a new entry, directly under the document root.
+    #
+    # string - the string that will be wrapped in an Entry object.
+    # attributes - a hash of attributes that will be applied to the Entry.
+    #
     # Returns the newly created child.
 
     def append(string, **attributes)
@@ -96,18 +102,20 @@ module RichText
 
     # Getter for the base node. If the raw input has not yet been
     # parsed that will happen first, before the base node is returned.
+    #
+    # Returns the root Entry.
 
-    def base
-      unless @base
-        @base = Entry.new
-        self.class.parse @base, @raw
+    def root
+      unless @root
+        @root = Entry.new
+        self.class.parse @root, @raw
         @raw = nil
       end
 
-      @base
+      @root
     end
 
-    alias root base
+    alias base root
 
     # Returns true if the raw input has been parsed and the internal
     # representation is now a tree of nodes.

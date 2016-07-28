@@ -35,7 +35,7 @@ describe RichText::Document do
       orig = subject.new 'test'
 
       # Force a call to .parse
-      orig.base
+      orig.root
       assert orig.parsed?
 
       copy = subject.new orig
@@ -148,17 +148,17 @@ describe RichText::Document do
     end
   end
 
-  describe '#each_node' do
+  describe '#each_entry' do
     it 'returns an enumerator' do
       rt = subject.new 'test'
-      assert_kind_of Enumerator, rt.each_node
+      assert_kind_of Enumerator, rt.each_entry
     end
 
     it 'iterates over the nodes' do
       rt = subject.new 'test'
       count = 0
 
-      rt.each_node do
+      rt.each_entry do
         count += 1
       end
 

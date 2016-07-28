@@ -4,8 +4,13 @@ module RichText
   # Document
   #
   class Document
+    include RootedTree::Tree
+    
     attr_reader :raw
     protected :raw
+    private :each_leaf, :each_edge, :degree, :depth
+    
+    alias each_entry each_node
 
     # Create a new RichText Document, either from a string or from an existing
     # document. That feature is particularly useful when converting between
@@ -129,17 +134,12 @@ module RichText
       @raw.nil?
     end
 
+    # Override this methods to force the document to not use the raw content
+    # when posible but instead call .parse.
+
     protected def should_parse?
       false
     end
-
-    # Iterate over all Entry nodes in the document tree.
-
-    def each_node(&block)
-      root.each(&block)
-    end
-
-    alias each_entry each_node
 
     # Document type specific method for parsing a string and turning it into a
     # tree of entry nodes. This method is intended to be overridden when the

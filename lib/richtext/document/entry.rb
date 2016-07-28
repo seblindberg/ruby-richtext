@@ -27,6 +27,10 @@ module RichText
         super text
       end
       
+      # Freeze the attributes hash, as well as the node structure.
+      #
+      # Returns self.
+      
       def freeze
         @attributes.freeze
         super
@@ -153,6 +157,10 @@ module RichText
       
       # Represents the Entry structure as a hierarchy, showing the attributes of
       # each node as well as the text entries in the leafs.
+      #
+      # If a block is given, it will be called once for each entry, and the
+      # returned string will be used to represent the object in the output
+      # graph.
       #
       # Returns a string. Note that it will contain newline characters if the
       # node has children.

@@ -42,6 +42,42 @@ describe RichText::Document::Entry do
 
     base
   end
+  
+  describe '#freeze' do
+    it 'freezes the attribute hash' do
+      node.freeze
+      assert node.attributes.frozen?
+    end
+    
+    it 'freezes the text entry' do
+      node.freeze
+      assert_raises(RuntimeError) { node.text = 'text' }
+    end
+  end
+  
+  describe '#[]' do
+    it 'reads attributes' do
+      node.attributes[:key] = :value
+      assert_equal :value, node[:key]
+    end
+    
+    it 'writes attributes' do
+      node[:key] = :value
+      assert_equal :value, node.attributes[:key]
+    end
+  end
+  
+  describe '#text' do
+    it 'sets the text' do
+      node.text = 'text'
+      assert_equal 'text', node.text
+    end
+    
+    it 'only allows setting the value of leafs' do
+      node << child
+      assert_raises(RuntimeError) { node.text = 'text' }
+    end
+  end
 
   describe '#append_child' do
     it 'appends children' do
@@ -91,13 +127,6 @@ describe RichText::Document::Entry do
     end
   end
 
-  describe '#to_s' do
-    it 'flattens the tree' do
-      assert_equal 'abc', minimal_tree.to_s
-      assert_equal 'a',   non_minimal_tree.to_s
-    end
-  end
-
   describe '#optimize!' do
     it 'removes leaf children with blank text entries' do
       base = subject.new 'text'
@@ -128,6 +157,45 @@ describe RichText::Document::Entry do
       end
       
       assert_equal 'ac', root.to_s
+    end
+  end
+  
+  describe '#to_s' do
+    it 'flattens the tree' do
+      assert_equal 'abc', minimal_tree.to_s
+      assert_equal 'a',   non_minimal_tree.to_s
+    end
+  end
+  
+  describe '#inspect' do
+    it 'outputs the text for leafs' do
+      node.text = 'a'
+      assert_equal '"a"', node.inspect
+    end
+    
+    it 'lists the attributes' do
+      node.text = 'a'
+      node[:b] = 'b'
+      node[:c] = 'c'
+            
+      assert_equal '"a" b="b" c="c"', node.inspect
+    end
+    
+    it 'outputs a circle for internal nodes and indents children' do
+      node << child
+      node[:a] = 'a'
+      child.text = 'b'
+      
+      lines = node.inspect.split "\n"
+      assert_equal '◯ a="a"', lines.first
+      assert_equal '└─╴"b"', lines.last
+    end
+    
+    it 'accepts a block for formatting the nodes' do
+      node << child
+      res = node.inspect { |entry| 'test' }
+      
+      assert_equal "test\n└─╴test", res
     end
   end
 end

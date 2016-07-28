@@ -92,7 +92,7 @@ describe RichText::Document do
       rt = subject.new 'a'
       rt.append 'b', bold: true
 
-      assert_equal 'ab', rt.to_s
+      assert_equal 'ab', rt.to_plain
     end
   end
 
@@ -135,6 +135,17 @@ describe RichText::Document do
 
       assert_equal 'ab', text_ab.to_s
     end
+    
+    it 'raises an error for objects not responding to #to_s' do
+      klass = Class.new do
+        private :to_s
+      end
+      
+      obj = klass.new
+      doc = subject.new 'a'
+            
+      assert_raises(TypeError) { doc + obj }
+    end
   end
 
   describe '#each_node' do
@@ -164,6 +175,11 @@ describe RichText::Document do
       assert_kind_of subclass, rt_sub
 
       assert_equal rt.to_s, rt_sub.to_s
+    end
+    
+    it 'raises an error when converting from non-documents' do
+      non_doc = Object.new
+      assert_raises(TypeError) { subject.from non_doc }
     end
   end
 end

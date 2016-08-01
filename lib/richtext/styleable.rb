@@ -1,3 +1,12 @@
+# Styleable
+#
+# Mixin for any object that respond to #[] and #[]= that includes methods for
+# expressing text style. Both boolean properties such as boldness and arbitrary
+# attributes such as font are supported.
+#
+# Attributes are stored as key-value pairs, where the key is a symbol and the
+# value is some arbitrary object.
+
 module RichText
   module Styleable
     

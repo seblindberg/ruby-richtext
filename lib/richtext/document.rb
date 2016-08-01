@@ -5,11 +5,11 @@ module RichText
   #
   class Document
     include RootedTree::Tree
-    
+
     attr_reader :raw
     protected :raw
     private :each_leaf, :each_edge, :degree, :depth
-    
+
     alias each_entry each_node
 
     # Create a new RichText Document, either from a string or from an existing

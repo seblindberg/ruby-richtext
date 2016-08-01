@@ -1,18 +1,16 @@
 # frozen_string_literal: true
 
+# The Entry class extends the basic Node class and adds methods that make
+# handling text a little nicer. Essentially the :text attribute is given
+# special status by allowing it to a) be set during initialization, b) only
+# visible in leaf nodes and c) copied over when adding children to leaf nodes.
+#
+# Some attributes are also supported explicitly by the inclusion of special
+# accesser methods. The attributes are are bold, italic, underline, color and
+# font.
+
 module RichText
   class Document
-
-    # The Entry class extends the basic Node class and adds methods that make
-    # handling text a little nicer. Essentially the :text attribute is given
-    # special status by allowing it to a) be set during initialization, b) only
-    # visible in leaf nodes and c) copied over when adding children to leaf
-    # nodes.
-    #
-    # Some attributes are also supported explicitly by the inclusion of special
-    # accesser methods. The attributes are are bold, italic, underline, color
-    # and font.
-
     class Entry < RootedTree::Node
       include Styleable
 
@@ -81,9 +79,7 @@ module RichText
       # Returns self to allow chaining.
 
       def append_child(child_text = nil, **attributes)
-        if leaf? && !text.empty?
-          super self.class.new(value)
-        end
+        super self.class.new(value) if leaf? && !text.empty?
 
         if child_text.is_a? self.class
           super child_text
@@ -165,10 +161,10 @@ module RichText
       # Returns a string. Note that it will contain newline characters if the
       # node has children.
 
-      def inspect *args, &block
+      def inspect(*args, &block)
         unless block_given?
           block = proc do |entry|
-            base_name = entry.leaf? ? %Q{"#{entry.text}"} : '◯'
+            base_name = entry.leaf? ? %("#{entry.text}") : '◯'
             base_name + entry.attributes.reduce('') do |a, (k, v)|
               a + " #{k}=#{v.inspect}"
             end

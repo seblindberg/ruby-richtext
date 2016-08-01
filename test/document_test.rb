@@ -68,18 +68,18 @@ describe RichText::Document do
       assert_equal 'abc', rt.to_s
     end
   end
-  
+
   describe '#freeze' do
     it 'freezes the node structure' do
       doc = subject.new subject::Entry.new('text')
       doc.freeze
-      
+
       assert doc.root.frozen?
     end
-    
+
     it 'forces an unparsed document to parse' do
       doc = subject.new 'raw'
-      
+
       refute doc.parsed?
       doc.freeze
       assert doc.parsed?
@@ -119,24 +119,24 @@ describe RichText::Document do
 
       text_a = subject.new 'a'
       text_b = subject.new 'b'
-      
+
       text_ab = text_a + text_b
 
       assert_equal initial_node_count, node_count,
                    'No Entries should have been created'
       assert_equal 'ab', text_ab.to_s
     end
-    
+
     it 'copies the node structures rather than modify them' do
-      
+
     end
 
     it 'combines dissimilar classes' do
       text_a = subclass.new 'a'
       text_b = subject.new 'b'
-      
+
       initial_node_count = node_count
-      
+
       text_ab = text_a + text_b
 
       assert_equal 'ab', text_ab.to_s
@@ -152,15 +152,15 @@ describe RichText::Document do
 
       assert_equal 'ab', text_ab.to_s
     end
-    
+
     it 'raises an error for objects not responding to #to_s' do
       klass = Class.new do
         private :to_s
       end
-      
+
       obj = klass.new
       doc = subject.new 'a'
-            
+
       assert_raises(TypeError) { doc + obj }
     end
   end
@@ -193,7 +193,7 @@ describe RichText::Document do
 
       assert_equal rt.to_s, rt_sub.to_s
     end
-    
+
     it 'raises an error when converting from non-documents' do
       non_doc = Object.new
       assert_raises(TypeError) { subject.from non_doc }

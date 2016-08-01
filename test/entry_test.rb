@@ -6,7 +6,7 @@ require 'test_helper'
 
 describe RichText::Document::Entry do
   subject { ::RichText::Document::Entry }
-  
+
   let(:node) { subject.new }
   let(:child) { subject.new }
 
@@ -19,7 +19,7 @@ describe RichText::Document::Entry do
   let(:minimal_tree) do
     ab = subject.new 'a'
     ab.append_child 'b'
-    
+
     base = subject.new
     base << ab
     base << 'c'
@@ -42,37 +42,37 @@ describe RichText::Document::Entry do
 
     base
   end
-  
+
   describe '#freeze' do
     it 'freezes the attribute hash' do
       node.freeze
       assert node.attributes.frozen?
     end
-    
+
     it 'freezes the text entry' do
       node.freeze
       assert_raises(RuntimeError) { node.text = 'text' }
     end
   end
-  
+
   describe '#[]' do
     it 'reads attributes' do
       node.attributes[:key] = :value
       assert_equal :value, node[:key]
     end
-    
+
     it 'writes attributes' do
       node[:key] = :value
       assert_equal :value, node.attributes[:key]
     end
   end
-  
+
   describe '#text' do
     it 'sets the text' do
       node.text = 'text'
       assert_equal 'text', node.text
     end
-    
+
     it 'only allows setting the value of leafs' do
       node << child
       assert_raises(RuntimeError) { node.text = 'text' }
@@ -84,7 +84,7 @@ describe RichText::Document::Entry do
       node.append_child child
       assert_same node.child, child
     end
-    
+
     it 'moves the text from a leaf node to a new child' do
       # Create a leaf node and a child
       leaf  = subject.new 'text'
@@ -101,7 +101,7 @@ describe RichText::Document::Entry do
       assert_equal 2, leaf.degree
       assert_equal 'text', leaf.child(0).text
     end
-    
+
     it 'accepts strings' do
       # Add a string as a child. This should be interpreted
       # as a blank Entry with the text 'test'
@@ -109,18 +109,18 @@ describe RichText::Document::Entry do
       assert_equal 'test', node.child.text
       assert node.child.bold?
     end
-    
+
     it 'is also available as the alias #<<' do
       assert_equal node.method(:append_child), node.method(:<<)
     end
   end
-  
+
   describe '#prepend_child' do
     it 'is protected' do
       assert_raises(NoMethodError) { node.prepend_child }
     end
   end
-  
+
   describe '#prepend_sibling' do
     it 'is protected' do
       assert_raises(NoMethodError) { node.prepend_sibling }
@@ -135,66 +135,66 @@ describe RichText::Document::Entry do
       base.optimize!
       assert_equal 1, base.size
     end
-    
+
     it 'accepts a block for how to optimize' do
       minimal_tree.optimize! do |entry|
         entry.text == 'b'
       end
-      
+
       assert_equal 'ac', minimal_tree.to_s
     end
   end
-  
+
   describe '#optimize' do
     it 'optimizes a copy of the original' do
       root = non_minimal_tree.optimize
       refute_same non_minimal_tree, root
     end
-    
+
     it 'accepts a block for how to optimize' do
       root = minimal_tree.optimize do |entry|
         entry.text == 'b'
       end
-      
+
       assert_equal 'ac', root.to_s
     end
   end
-  
+
   describe '#to_s' do
     it 'flattens the tree' do
       assert_equal 'abc', minimal_tree.to_s
       assert_equal 'a',   non_minimal_tree.to_s
     end
   end
-  
+
   describe '#inspect' do
     it 'outputs the text for leafs' do
       node.text = 'a'
       assert_equal '"a"', node.inspect
     end
-    
+
     it 'lists the attributes' do
       node.text = 'a'
       node[:b] = 'b'
       node[:c] = 'c'
-            
+
       assert_equal '"a" b="b" c="c"', node.inspect
     end
-    
+
     it 'outputs a circle for internal nodes and indents children' do
       node << child
       node[:a] = 'a'
       child.text = 'b'
-      
+
       lines = node.inspect.split "\n"
       assert_equal '◯ a="a"', lines.first
       assert_equal '└─╴"b"', lines.last
     end
-    
+
     it 'accepts a block for formatting the nodes' do
       node << child
-      res = node.inspect { |entry| 'test' }
-      
+      res = node.inspect { 'test' }
+
       assert_equal "test\n└─╴test", res
     end
   end

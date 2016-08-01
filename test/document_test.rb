@@ -68,6 +68,23 @@ describe RichText::Document do
       assert_equal 'abc', rt.to_s
     end
   end
+  
+  describe '#freeze' do
+    it 'freezes the node structure' do
+      doc = subject.new subject::Entry.new('text')
+      doc.freeze
+      
+      assert doc.root.frozen?
+    end
+    
+    it 'forces an unparsed document to parse' do
+      doc = subject.new 'raw'
+      
+      refute doc.parsed?
+      doc.freeze
+      assert doc.parsed?
+    end
+  end
 
   describe '#parsed?' do
     it 'returns false when the object is not parsed' do

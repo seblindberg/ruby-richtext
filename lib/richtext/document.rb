@@ -58,7 +58,8 @@ module RichText
       end
     end
 
-    # Uses Entry#to_s to reduce the node structure down to a string.
+    # Uses Entry#to_s to reduce the node structure down to a string with no
+    # formatting.
     #
     # Returns the strings from all of the leaf nodes without any formatting
     # applied.

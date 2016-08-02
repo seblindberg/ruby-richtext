@@ -54,6 +54,21 @@ describe RichText::Document::Entry do
       assert_raises(RuntimeError) { node.text = 'text' }
     end
   end
+  
+  describe '#dup' do
+    it 'dupes the attributes' do
+      node_dup = node.dup
+      
+      refute_same node.attributes, node_dup.attributes
+    end
+    
+    it 'dupes the text' do
+      node.text = 'text'
+      node_dup = node.dup
+      
+      refute_same node.text, node_dup.text
+    end
+  end
 
   describe '#[]' do
     it 'reads attributes' do

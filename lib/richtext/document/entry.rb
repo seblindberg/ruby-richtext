@@ -24,14 +24,22 @@ module RichText
         @attributes = attributes
         super text
       end
+      
+      # Dupes the attributes hash (shallowly), along with the node structure
+      # under this entry.
+      
+      def initialize_dup(source)
+        @attributes = source.attributes.dup
+        super
+      end
 
       # Freeze the attributes hash, as well as the node structure.
       #
       # Returns self.
 
       def freeze
-        @attributes.freeze
         super
+        @attributes.freeze
       end
 
       # Accessor for single attributes.

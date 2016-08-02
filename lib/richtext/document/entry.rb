@@ -49,7 +49,7 @@ module RichText
       # Returns the attribute value if it is set and nil otherwise.
 
       def [](key)
-        attributes[key]
+        @attributes[key]
       end
 
       # Write a single attribute.
@@ -58,7 +58,17 @@ module RichText
       # v - the new value
 
       def []=(key, v)
-        attributes[key] = v
+        @attributes[key] = v
+      end
+      
+      def merge_attributes preserve: false, **attributes
+        if preserve
+          attributes.each do |k, v|
+            @attributes[k] = v unless @attributes.has_key? k
+          end
+        else
+          @attributes.merge! attributes
+        end
       end
 
       # Read the text of the node.

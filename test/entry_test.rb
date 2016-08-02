@@ -81,6 +81,27 @@ describe RichText::Document::Entry do
       assert_equal :value, node.attributes[:key]
     end
   end
+  
+  describe '#merge_attributes' do
+    it 'merges in the given hash of attributes' do
+      node[:key_1] = :value_1
+      node.merge_attributes key_2: :value_2
+      assert_equal :value_2, node[:key_2]
+    end
+    
+    it 'overwrites existing keys by default' do
+      node[:key] = :value_1
+      node.merge_attributes key: :value_2
+      assert_equal :value_2, node[:key]
+    end
+    
+    it 'preserves existing attributes with argument' do
+      node[:key_1] = :value_1
+      node.merge_attributes preserve: true, key_1: :value_2, key_2: :value_2
+      assert_equal :value_1, node[:key_1]
+      assert_equal :value_2, node[:key_2]
+    end
+  end
 
   describe '#text' do
     it 'sets the text' do

@@ -172,7 +172,7 @@ module RichText
       def inspect(*args, &block)
         unless block_given?
           block = proc do |entry|
-            base_name = entry.leaf? ? %("#{entry.text}") : '◯'
+            base_name = entry.leaf? ? entry.text.inspect : '◯'
             base_name + entry.attributes.reduce('') do |a, (k, v)|
               a + " #{k}=#{v.inspect}"
             end

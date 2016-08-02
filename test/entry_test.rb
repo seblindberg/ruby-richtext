@@ -212,5 +212,11 @@ describe RichText::Document::Entry do
 
       assert_equal "test\n└─╴test", res
     end
+    
+    it 'escapes newlines in the text entry' do
+      node.text = "line 1\nline 2"
+      
+      assert_equal '"line 1\nline 2"', node.inspect
+    end
   end
 end
